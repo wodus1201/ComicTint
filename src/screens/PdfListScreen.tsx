@@ -1,8 +1,12 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mockPdfs } from '../data/pdfs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 
-export default function PdfListScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
+
+export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
 
   return (
@@ -18,6 +22,11 @@ export default function PdfListScreen() {
           </TouchableOpacity>
         )}
       />
+      <View style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>뒤로가기</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -42,6 +51,21 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: 'dimgray',
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+  },
+  backButtonText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });
 
