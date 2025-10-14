@@ -1,4 +1,4 @@
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -41,7 +41,9 @@ export default function PdfListScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: safeAreaInsets.top }]}>
+    <View style={styles.container}>
+      <StatusBar backgroundColor="skyblue" barStyle="light-content" />
+      <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
       <Text style={styles.title}>PDF 목록</Text>
       <FlatList
         data={items}
@@ -62,16 +64,13 @@ export default function PdfListScreen({ navigation }: Props) {
           </TouchableOpacity>
         )}
       />
-      <View style={styles.pickButtonContainer}>
-        <TouchableOpacity onPress={handlePick}>
+
+        <TouchableOpacity style={styles.pickButtonContainer} onPress={handlePick}>
           <Text style={styles.pickButtonText}>기기에서 PDF 선택</Text>
         </TouchableOpacity>
-      </View>
-      <View style={styles.backButtonContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButtonContainer} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>뒤로가기</Text>
         </TouchableOpacity>
-      </View>
     </View>
   );
 }

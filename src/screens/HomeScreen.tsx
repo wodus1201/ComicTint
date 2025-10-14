@@ -17,18 +17,14 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={styles.centerBox}>
         <Text style={styles.title}>COMIC:TINT</Text>
         <Text style={styles.subtitle}>Comic book color tinting tool</Text>
-        <View style={styles.startButton}>
-          <TouchableOpacity onPress={() => navigation.navigate('PdfList')} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('PdfList')} activeOpacity={0.8}>
             <Text style={styles.startButtonText}>시작하기</Text>
           </TouchableOpacity>
-        </View>
-        <View style={styles.themeButton}>
-          <TouchableOpacity onPress={() => {
+          <TouchableOpacity style={styles.themeButton} onPress={() => {
             setCurrentTheme(currentTheme === 'light' ? 'dark' : 'light');
           }} activeOpacity={0.8}>
             {currentTheme === 'light' ? <SunIcon size={20} color="white" /> : <MoonIcon size={20} color="white" />}
           </TouchableOpacity>
-        </View>
       </View>
     </View>
   );
