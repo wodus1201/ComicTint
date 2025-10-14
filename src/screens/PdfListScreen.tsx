@@ -36,21 +36,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: '600',
-    margin: 16,
+    color: 'white',
+    backgroundColor: 'skyblue',
+    padding: 10,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
   },
   item: {
-    paddingVertical: 12,
+    paddingVertical: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ccc',
   },
   itemText: {
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: '500',
   },
   backButtonContainer: {
     position: 'absolute',
