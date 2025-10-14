@@ -18,7 +18,7 @@ function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="PdfList" component={PdfListScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="PdfViewer" component={PdfViewerScreen} options={{ headerShown: true, title: 'PDF 보기' }} />
+          <Stack.Screen name="PdfViewer" component={PdfViewerScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

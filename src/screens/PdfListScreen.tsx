@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,7 +16,24 @@ export default function PdfListScreen({ navigation }: Props) {
       const res = await DocumentPicker.pickSingle({ type: types.pdf, copyTo: 'documentDirectory' });
       const pickedUri = res.fileCopyUri ?? res.uri;
       const name = res.name ?? 'imported.pdf';
-      setItems((prev) => [{ id: String(Date.now()), name, uri: pickedUri }, ...prev]);
+      Alert.alert(
+        '가져오기',
+        `${name} 파일을 어떻게 할까요?`,
+        [
+          {
+            text: '목록에 추가하기',
+            onPress: () => setItems((prev) => [{ id: String(Date.now()), name, uri: pickedUri }, ...prev]),
+          },
+          {
+            text: '미리보기',
+            onPress: () => navigation.navigate('PdfViewer', { uri: pickedUri }),
+          },
+          {
+            text: '취소하기',
+            style: 'cancel',
+          },
+        ]
+      );
     } catch (e: any) {
       if (DocumentPicker.isCancel(e)) return;
       console.warn('Document pick error', e);
