@@ -1,11 +1,11 @@
-import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
+import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Dimensions, TouchableWithoutFeedback, TextInput } from 'react-native';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontalIcon } from 'lucide-react-native';
-import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
+import { appendPdfIndex, readPdfIndex, removePdfWithTransaction, updatePdfIndex } from '../storage/pdfIndex';
 import { generateId, toSafeFileName } from '../utils/files';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { StoredPdf } from '../models/pdf';
@@ -17,6 +17,11 @@ export default function PdfListScreen({ navigation }: Props) {
   const [items, setItems] = useState<Array<{ id: string; name: string; uri?: string }>>([]);
   const [selectedItem, setSelectedItem] = useState<{ id: string; name: string; uri?: string } | null>(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [menuTop, setMenuTop] = useState(0);
+  const [menuLeft, setMenuLeft] = useState(0);
+  const moreBtnRefs = useRef<Record<string, any>>({});
+  const [renameVisible, setRenameVisible] = useState(false);
+  const [renameText, setRenameText] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -83,8 +88,37 @@ export default function PdfListScreen({ navigation }: Props) {
   };
 
   const handleMorePress = (item: { id: string; name: string; uri?: string }) => {
-    setSelectedItem(item);
-    setMenuVisible(true);
+    const ref = moreBtnRefs.current[item.id];
+    const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+    const MENU_WIDTH = 200;
+    const MENU_HEIGHT = 110;
+
+    if (!ref || !ref.measureInWindow) {
+      setSelectedItem(item);
+      setMenuTop(Math.max(8, screenHeight / 2 - MENU_HEIGHT / 2));
+      setMenuLeft(Math.min(Math.max(screenWidth / 2 - MENU_WIDTH / 2, 8), screenWidth - MENU_WIDTH - 8));
+      setMenuVisible(true);
+      return;
+    }
+
+    ref.measureInWindow((x: number, y: number, width: number, height: number) => {
+      const buttonRight = x + width;
+      const buttonBottom = y + height;
+      const buttonTop = y;
+      const V_OFFSET = 25;
+
+      const spaceBelow = screenHeight - buttonBottom;
+      const showAbove = spaceBelow < MENU_HEIGHT;
+      const top = showAbove ? Math.max(8, buttonTop - MENU_HEIGHT - V_OFFSET) : buttonBottom + V_OFFSET;
+
+      let left = buttonRight - MENU_WIDTH;
+      left = Math.min(Math.max(left, 8), screenWidth - MENU_WIDTH - 8);
+
+      setSelectedItem(item);
+      setMenuTop(top);
+      setMenuLeft(left);
+      setMenuVisible(true);
+    });
   };
 
   const handleDelete = (item: { id: string; name: string; uri?: string }) => {
@@ -116,8 +150,7 @@ export default function PdfListScreen({ navigation }: Props) {
           },
         },
         {
-          text: '취소',
-          style: 'cancel',
+          text: '이름 변경',
         },
       ]
     );
@@ -126,6 +159,37 @@ export default function PdfListScreen({ navigation }: Props) {
   const closeMenu = () => {
     setMenuVisible(false);
     setSelectedItem(null);
+  };
+
+  const openRename = () => {
+    if (!selectedItem) return;
+    setRenameText(selectedItem.name);
+    setMenuVisible(false);
+    setRenameVisible(true);
+  };
+
+  const closeRename = () => {
+    setRenameVisible(false);
+    setRenameText('');
+    setSelectedItem(null);
+  };
+
+  const confirmRename = async () => {
+    const target = selectedItem;
+    if (!target) return;
+    const nextName = renameText.trim();
+    if (nextName.length === 0) {
+      Alert.alert('이름 변경', '이름을 입력해주세요.');
+      return;
+    }
+    try {
+      await updatePdfIndex({ id: target.id, name: nextName });
+      setItems((prev) => prev.map((it) => (it.id === target.id ? { ...it, name: nextName } : it)));
+      closeRename();
+    } catch (e) {
+      console.warn('rename error', e);
+      Alert.alert('이름 변경 실패', '이름을 변경하는 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -153,6 +217,13 @@ export default function PdfListScreen({ navigation }: Props) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.moreButton}
+              ref={(r) => {
+                if (r) {
+                  moreBtnRefs.current[item.id] = r;
+                } else {
+                  delete moreBtnRefs.current[item.id];
+                }
+              }}
               onPress={() => handleMorePress(item)}
             >
               <MoreHorizontalIcon size={20} color="#666" />
@@ -172,38 +243,57 @@ export default function PdfListScreen({ navigation }: Props) {
         </TouchableOpacity>
       </View>
 
-      <Modal
-        visible={menuVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeMenu}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={closeMenu}
-        >
-          <View style={styles.menuContainer}>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                if (selectedItem) {
-                  closeMenu();
-                  handleDelete(selectedItem);
-                }
-              }}
-            >
-              <Text style={styles.menuItemText}>삭제</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={closeMenu}
-            >
-              <Text style={styles.menuItemText}>취소</Text>
-            </TouchableOpacity>
+      {menuVisible && (
+        <TouchableWithoutFeedback onPress={closeMenu}>
+          <View style={styles.fullOverlay}>
+            <View style={[styles.menuContainer, { position: 'absolute', top: menuTop, left: menuLeft }]}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={openRename}
+              >
+                <Text style={styles.menuItemText}>이름 변경</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  if (selectedItem) {
+                    closeMenu();
+                    handleDelete(selectedItem);
+                  }
+                }}
+              >
+                <Text style={styles.menuItemText}>삭제</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </TouchableWithoutFeedback>
+      )}
+      {renameVisible && (
+        <TouchableWithoutFeedback onPress={closeRename}>
+          <View style={styles.fullOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.renameContainer}>
+                <Text style={styles.renameTitle}>이름 변경</Text>
+                <TextInput
+                  style={styles.renameInput}
+                  value={renameText}
+                  onChangeText={setRenameText}
+                  placeholder="새 이름"
+                  autoFocus
+                />
+                <View style={styles.renameActions}>
+                  <TouchableOpacity style={styles.renameButton} onPress={closeRename}>
+                    <Text style={styles.renameButtonText}>취소</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.renameButtonPrimary} onPress={confirmRename}>
+                    <Text style={styles.renameButtonPrimaryText}>저장</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
     </View>
   );
 }
@@ -238,10 +328,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   moreButton: {
-    padding: 8,
+    padding: 5,
+    borderRadius: 20,
+    backgroundColor: 'lightgray',
   },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -259,6 +355,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  fullOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   menuItem: {
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -267,6 +372,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  renameContainer: {
+    marginHorizontal: 24,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  renameTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  renameInput: {
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    fontSize: 16,
+  },
+  renameActions: {
+    marginTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  renameButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 7,
+    marginRight: 8,
+  },
+  renameButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  renameButtonPrimary: {
+    paddingHorizontal: 20,
+    paddingVertical: 7,
+    backgroundColor: 'skyblue',
+    borderRadius: 12,
+  },
+  renameButtonPrimaryText: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: '600',
   },
   button: {
     alignItems: 'center',
