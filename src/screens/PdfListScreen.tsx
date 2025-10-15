@@ -1,4 +1,4 @@
-import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Dimensions, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Dimensions, TouchableWithoutFeedback, TextInput, Share } from 'react-native';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -22,6 +22,8 @@ export default function PdfListScreen({ navigation }: Props) {
   const moreBtnRefs = useRef<Record<string, any>>({});
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameText, setRenameText] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     (async () => {
@@ -88,6 +90,7 @@ export default function PdfListScreen({ navigation }: Props) {
   };
 
   const handleMorePress = (item: { id: string; name: string; uri?: string }) => {
+    if (editMode) return;
     const ref = moreBtnRefs.current[item.id];
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
     const MENU_WIDTH = 200;
@@ -119,6 +122,99 @@ export default function PdfListScreen({ navigation }: Props) {
       setMenuLeft(left);
       setMenuVisible(true);
     });
+  };
+
+  const toggleEditMode = () => {
+    setEditMode((prev) => {
+      const next = !prev;
+      if (!next) {
+        setSelectedIds(new Set());
+      }
+      return next;
+    });
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(items.map((i) => i.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  const handleShare = async (item: { id: string; name: string; uri?: string }) => {
+    if (!item.uri) {
+      Alert.alert('공유', '공유할 파일 경로를 찾을 수 없습니다.');
+      return;
+    }
+    await Share.share({ url: item.uri!, message: item.name, title: 'PDF 공유' });
+    Alert.alert('공유 완료', 'PDF 파일이 공유되었습니다.');
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) {
+      Alert.alert('삭제', '선택된 항목이 없습니다.');
+      return;
+    }
+    Alert.alert(
+      '삭제',
+      `${selectedIds.size}개 항목을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const selectedSet = new Set(selectedIds);
+              for (const it of items) {
+                if (selectedSet.has(it.id) && it.uri) {
+                  await removePdfWithTransaction(it.id, it.uri);
+                }
+              }
+              setItems((prev) => prev.filter((i) => !selectedSet.has(i.id)));
+              setSelectedIds(new Set());
+              setEditMode(false);
+              Alert.alert('삭제 완료', '선택한 파일이 삭제되었습니다.');
+            } catch (e: any) {
+              console.warn('bulk delete error', e);
+              Alert.alert('삭제 실패', '일부 파일을 삭제하지 못했습니다.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleBulkShare = async () => {
+    if (selectedIds.size === 0) {
+      Alert.alert('공유', '선택된 항목이 없습니다.');
+      return;
+    }
+    const selected = items.filter((i) => selectedIds.has(i.id) && i.uri);
+    if (selected.length === 0) {
+      Alert.alert('공유', '공유할 파일 경로를 찾을 수 없습니다.');
+      return;
+    }
+    try {
+      const first = selected[0];
+      const others = selected.slice(1);
+      const message = others.length > 0
+        ? `${others.length + 1}개 파일 공유:\n- ${stripExtension(first.name)}\n${others.map((o) => `- ${stripExtension(o.name)}`).join('\n')}`
+        : stripExtension(first.name);
+      await Share.share({ url: first.uri!, message, title: 'PDF 공유' });
+    } catch (e) {
+      console.warn('bulk share error', e);
+      Alert.alert('공유 실패', '파일 공유 중 오류가 발생했습니다.');
+    }
   };
 
   const handleDelete = (item: { id: string; name: string; uri?: string }) => {
@@ -206,8 +302,11 @@ export default function PdfListScreen({ navigation }: Props) {
             <TouchableOpacity
               style={styles.itemContent}
               onPress={() => {
-                if (item.uri) {
+                if (!editMode && item.uri) {
                   navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
+                }
+                if (editMode) {
+                  toggleSelect(item.id);
                 }
               }}
             >
@@ -215,33 +314,61 @@ export default function PdfListScreen({ navigation }: Props) {
                 {stripExtension(item.name)}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.moreButton}
-              ref={(r) => {
-                if (r) {
-                  moreBtnRefs.current[item.id] = r;
-                } else {
-                  delete moreBtnRefs.current[item.id];
-                }
-              }}
-              onPress={() => handleMorePress(item)}
-            >
-              <MoreHorizontalIcon size={20} color="#666" />
-            </TouchableOpacity>
+            {editMode ? (
+              <TouchableOpacity
+                style={styles.moreButton}
+                onPress={() => toggleSelect(item.id)}
+              >
+                <View style={styles.checkOuter}>
+                  {selectedIds.has(item.id) ? <View style={styles.checkInner} /> : null}
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.moreButton}
+                ref={(r) => {
+                  if (r) {
+                    moreBtnRefs.current[item.id] = r;
+                  } else {
+                    delete moreBtnRefs.current[item.id];
+                  }
+                }}
+                onPress={() => handleMorePress(item)}
+              >
+                <MoreHorizontalIcon size={20} color="#666" />
+              </TouchableOpacity>
+            )}
           </View>
         )}
       />
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={handlePick}>
-          <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RecentFiles')}>
-          <Text style={styles.buttonText}>최근 열었던 파일</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>목록 비우기</Text>
-        </TouchableOpacity>
-      </View>
+      {editMode ? (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.button} onPress={selectedIds.size === items.length ? clearSelection : selectAll}>
+            <Text style={styles.buttonText}>{selectedIds.size === items.length ? '모두 해제' : '모두 선택'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleBulkShare}>
+            <Text style={styles.buttonText}>공유</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleBulkDelete}>
+            <Text style={styles.buttonText}>삭제</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={toggleEditMode}>
+            <Text style={styles.buttonText}>완료</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.button} onPress={handlePick}>
+            <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RecentFiles')}>
+            <Text style={styles.buttonText}>최근 열었던 파일</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={toggleEditMode}>
+            <Text style={styles.buttonText}>목록 수정</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {menuVisible && (
         <TouchableWithoutFeedback onPress={closeMenu}>
@@ -276,6 +403,7 @@ export default function PdfListScreen({ navigation }: Props) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.menuItem}
+                onPress={() => handleShare(selectedItem!)}
               >
                 <Text style={styles.menuItemText}>공유</Text>
               </TouchableOpacity>
@@ -330,13 +458,13 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ccc',
   },
   itemContent: {
     flex: 1,
     paddingRight: 10,
+    paddingVertical: 20,
   },
   itemText: {
     fontSize: 20,
@@ -346,6 +474,20 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 20,
     backgroundColor: 'lightgray',
+  },
+  checkOuter: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: '100%',
+  },
+  checkInner: {
+    width: 20,
+    height: 20,
+    borderRadius: '100%',
+    backgroundColor: 'skyblue',
   },
   modalOverlay: {
     position: 'absolute',

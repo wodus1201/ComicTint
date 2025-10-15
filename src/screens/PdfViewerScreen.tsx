@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 7,
-    paddingHorizontal: 30,
+    paddingHorizontal: 46,
   },
 });
 
