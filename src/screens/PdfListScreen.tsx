@@ -3,7 +3,11 @@ import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { appendPdfIndex, readPdfIndex } from '../storage/pdfIndex';
+import { generateId, toSafeFileName } from '../utils/files';
+import { copyContentUriToDocumentDir } from '../utils/fileCopy';
+import { StoredPdf } from '../models/pdf';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 
@@ -11,10 +15,19 @@ export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
   const [items, setItems] = useState<Array<{ id: string; name: string; uri?: string }>>([]);
 
+  useEffect(() => {
+    (async () => {
+      const stored = await readPdfIndex();
+      setItems(stored.map((s) => ({ id: s.id, name: s.name, uri: s.path })));
+    })();
+  }, []);
+
   const handlePick = async () => {
     try {
-      const res = await DocumentPicker.pickSingle({ type: types.pdf, copyTo: 'documentDirectory' });
-      const pickedUri = res.fileCopyUri ?? res.uri;
+      const res = await DocumentPicker.pickSingle({ type: types.pdf });
+      const pickedUri = res.uri;
+      console.log('DocumentPicker result:', { uri: res.uri, fileCopyUri: res.fileCopyUri, name: res.name });
+      console.log('Using URI:', pickedUri);
       const name = res.name ?? 'imported.pdf';
       Alert.alert(
         '가져오기',
@@ -22,7 +35,19 @@ export default function PdfListScreen({ navigation }: Props) {
         [
           {
             text: '목록에 추가하기',
-            onPress: () => setItems((prev) => [{ id: String(Date.now()), name, uri: pickedUri }, ...prev]),
+            onPress: async () => {
+              try {
+                const id = generateId();
+                const safe = toSafeFileName(name);
+                const { destPath, size } = await copyContentUriToDocumentDir({ id, safeFileName: safe, contentUri: pickedUri });
+                const now = Date.now();
+                const record: StoredPdf = { id, name, path: destPath, size, createdAt: now, lastOpenedAt: now };
+                await appendPdfIndex(record);
+                setItems((prev) => [{ id, name, uri: destPath }, ...prev]);
+              } catch (err) {
+                console.warn('import error', err);
+              }
+            },
           },
           {
             text: '미리보기',
@@ -54,7 +79,7 @@ export default function PdfListScreen({ navigation }: Props) {
             style={styles.item}
             onPress={() => {
               if (item.uri) {
-                navigation.navigate('PdfViewer', { uri: item.uri });
+                navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
               }
             }}
           >
@@ -64,13 +89,17 @@ export default function PdfListScreen({ navigation }: Props) {
           </TouchableOpacity>
         )}
       />
-
-        <TouchableOpacity style={styles.pickButtonContainer} onPress={handlePick}>
-          <Text style={styles.pickButtonText}>기기에서 PDF 선택</Text>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity onPress={handlePick}>
+          <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.backButtonContainer} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>뒤로가기</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.buttonText}>최근 열었던 파일</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.buttonText}>목록 비우기</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -98,35 +127,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '500',
   },
-  backButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: 'dimgray',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-  },
-  backButtonText: {
+  buttonText: {
     color: 'white',
     fontWeight: '600',
   },
-  pickButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'dimgray',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: 'skyblue',
     paddingVertical: 15,
-  },
-  pickButtonText: {
-    color: 'white',
-    fontWeight: '600',
+    paddingHorizontal: 35,
   },
 });
 

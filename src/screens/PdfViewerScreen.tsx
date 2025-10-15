@@ -4,11 +4,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { ArrowLeftIcon, ArrowRightIcon, RefreshCcwIcon } from 'lucide-react-native';
 import Pdf from 'react-native-pdf';
+import { updatePdfIndex } from '../storage/pdfIndex';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfViewer'>;
 
 export default function PdfViewerScreen({ route, navigation }: Props) {
-  const { uri } = route.params;
+  const { uri, id } = route.params;
   const [resolvedUri, setResolvedUri] = useState<string | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const opacity = useRef(new Animated.Value(1)).current;
@@ -16,7 +17,10 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     setResolvedUri(uri);
-  }, [uri]);
+    if (id) {
+      updatePdfIndex({ id, lastOpenedAt: Date.now() }).catch((e) => console.warn('update lastOpenedAt error', e));
+    }
+  }, [uri, id]);
 
   const toggleControls = () => {
     const toValue = controlsVisible ? 0 : 1;

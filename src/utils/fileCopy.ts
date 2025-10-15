@@ -1,30 +1,58 @@
 import RNBlobUtil from 'react-native-blob-util';
-import { buildPdfRelativePath } from './files';
+import { buildPdfRelativePath, APP_DIR, PDF_DIR } from './files';
+
+async function ensureDir(path: string) {
+  const isDir = await RNBlobUtil.fs.isDir(path);
+  if (!isDir) {
+    await RNBlobUtil.fs.mkdir(path);
+  }
+}
 
 export async function copyContentUriToDocumentDir(params: {
   id: string;
   safeFileName: string;
-  contentUri: string;
+  contentUri: string; // content://
 }): Promise<{ destPath: string; size: number }>
 {
   const rel = buildPdfRelativePath(params.id, params.safeFileName);
-  const destPath = RNBlobUtil.fs.dirs.DocumentDir + '/' + rel;
+  const base = RNBlobUtil.fs.dirs.DocumentDir;
+  const destPath = base + '/' + rel;
 
-  const dirPath = destPath.substring(0, destPath.lastIndexOf('/'));
-  await RNBlobUtil.fs.mkdir(dirPath);
+  const appDir = base + '/' + APP_DIR;
+  const pdfDir = appDir + '/' + PDF_DIR;
+  const idDir = pdfDir + '/' + params.id;
+  await ensureDir(appDir);
+  await ensureDir(pdfDir);
+  await ensureDir(idDir);
 
-  if (params.contentUri.startsWith('content://')) {
-    const data = await RNBlobUtil.fs.readStream(params.contentUri, 'base64');
-    const fetched = await RNBlobUtil.config({
-      fileCache: false,
-      trusty: true,
-    }).fetch('GET', params.contentUri);
-    const base64 = await fetched.base64();
-    await RNBlobUtil.fs.writeFile(destPath, base64, 'base64');
-  } else if (params.contentUri.startsWith('file://')) {
-    await RNBlobUtil.fs.cp(params.contentUri.replace('file://', ''), destPath);
-  } else {
+  // Simple approach: use RNBlobUtil's built-in copy for content URIs
+  try {
     await RNBlobUtil.fs.cp(params.contentUri, destPath);
+  } catch (error) {
+    console.warn('Direct copy failed, trying stream method:', error);
+    
+    // Fallback to stream method
+    const stream = await RNBlobUtil.fs.readStream(params.contentUri, 'base64');
+    const chunks: string[] = [];
+    
+    stream.open();
+    stream.onData((chunk: string | number[]) => {
+      if (typeof chunk === 'string') {
+        chunks.push(chunk);
+      }
+    });
+    
+    await new Promise<void>((resolve, reject) => {
+      stream.onEnd(() => {
+        resolve();
+      });
+      stream.onError((err: any) => {
+        reject(err);
+      });
+    });
+    
+    const base64 = chunks.join('');
+    await RNBlobUtil.fs.writeFile(destPath, base64, 'base64');
   }
 
   const stat = await RNBlobUtil.fs.stat(destPath);
