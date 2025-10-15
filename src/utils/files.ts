@@ -43,3 +43,12 @@ export function generateId() {
     return v.toString(16);
   });
 }
+
+export function stripExtension(name: string) {
+  if (!name || typeof name !== 'string') return '';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return '';
+  const lastDot = trimmed.lastIndexOf('.');
+  if (lastDot <= 0) return trimmed; // no dot or hidden files like ".filename"
+  return trimmed.substring(0, lastDot);
+}

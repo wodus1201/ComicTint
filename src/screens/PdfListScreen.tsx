@@ -6,7 +6,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontalIcon } from 'lucide-react-native';
 import { appendPdfIndex, readPdfIndex, removePdfWithTransaction, updatePdfIndex } from '../storage/pdfIndex';
-import { generateId, toSafeFileName } from '../utils/files';
+import { generateId, toSafeFileName, stripExtension } from '../utils/files';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { StoredPdf } from '../models/pdf';
 
@@ -212,7 +212,7 @@ export default function PdfListScreen({ navigation }: Props) {
               }}
             >
               <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
-                {item.name}
+                {stripExtension(item.name)}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -249,6 +249,16 @@ export default function PdfListScreen({ navigation }: Props) {
             <View style={[styles.menuContainer, { position: 'absolute', top: menuTop, left: menuLeft }]}>
               <TouchableOpacity
                 style={styles.menuItem}
+              >
+                <Text style={styles.menuItemText}>파일 정보</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+              >
+                <Text style={styles.menuItemText}>즐겨찾기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
                 onPress={openRename}
               >
                 <Text style={styles.menuItemText}>이름 변경</Text>
@@ -263,6 +273,11 @@ export default function PdfListScreen({ navigation }: Props) {
                 }}
               >
                 <Text style={styles.menuItemText}>삭제</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+              >
+                <Text style={styles.menuItemText}>공유</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -374,10 +389,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   renameContainer: {
-    marginHorizontal: 24,
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 16,
+    width: '80%',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

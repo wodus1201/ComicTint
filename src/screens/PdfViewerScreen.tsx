@@ -50,13 +50,13 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
       pointerEvents={controlsVisible ? 'auto' : 'none'}
     >
       <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <ArrowLeftIcon size={25} color="white" />
+        <ArrowLeftIcon size={25} color="dimgray" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <ArrowRightIcon size={25} color="white" />
+        <ArrowRightIcon size={25} color="dimgray" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <RefreshCcwIcon size={25} color="white" />
+        <RefreshCcwIcon size={25} color="dimgray" />
       </TouchableOpacity>
     </Animated.View>
     <Pdf
@@ -91,16 +91,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'skyblue',
     borderRadius: 30,
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     padding: 6,
     flexDirection: 'row',
   },
   buttonContainer: {
-    backgroundColor: 'dimgray',
+    backgroundColor: 'lightgray',
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 7,
+    paddingVertical: 7,
+    paddingHorizontal: 30,
   },
 });
 
