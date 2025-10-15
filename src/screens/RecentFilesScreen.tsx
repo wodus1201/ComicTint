@@ -17,8 +17,8 @@ export default function RecentFilesScreen({ navigation }: Props) {
     (async () => {
       const stored = await readPdfIndex();
       const sorted = stored
-        .filter(item => item.lastOpenedAt > 0)
-        .sort((a, b) => b.lastOpenedAt - a.lastOpenedAt);
+        .filter(item => item.lastOpenedAt !== undefined)
+        .sort((a, b) => (b.lastOpenedAt || 0) - (a.lastOpenedAt || 0));
       setItems(sorted);
     })();
   }, []);

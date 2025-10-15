@@ -41,7 +41,7 @@ export default function PdfListScreen({ navigation }: Props) {
                 const safe = toSafeFileName(name);
                 const { destPath, size } = await copyContentUriToDocumentDir({ id, safeFileName: safe, contentUri: pickedUri });
                 const now = Date.now();
-                const record: StoredPdf = { id, name, path: destPath, size, createdAt: now, lastOpenedAt: now };
+                const record: StoredPdf = { id, name, path: destPath, size, createdAt: now };
                 await appendPdfIndex(record);
                 setItems((prev) => [{ id, name, uri: destPath }, ...prev]);
                 Alert.alert('성공', 'PDF 파일이 목록에 추가되었습니다.');
@@ -173,9 +173,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ccc',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   itemText: {
     fontSize: 20,
