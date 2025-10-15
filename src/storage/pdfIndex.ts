@@ -41,3 +41,24 @@ export async function updatePdfIndex(update: Partial<StoredPdf> & { id: string }
   await writePdfIndex(next);
 }
 
+export async function removePdfWithTransaction(id: string, filePath: string): Promise<void> {
+  const items = await readPdfIndex();
+  const itemToDelete = items.find((i) => i.id === id);
+  
+  if (!itemToDelete) {
+    throw new Error('PDF 항목을 찾을 수 없습니다');
+  }
+
+  try {
+    const next = items.filter((i) => i.id !== id);
+    await writePdfIndex(next);
+    
+    const { deletePdfFile, deletePdfDirectory } = await import('../utils/fileCopy');
+    await deletePdfFile(filePath);
+    await deletePdfDirectory(id);
+  } catch (error) {
+    console.warn('removePdfWithTransaction error:', error);
+    throw error;
+  }
+}
+

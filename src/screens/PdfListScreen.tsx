@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useEffect, useState } from 'react';
-import { appendPdfIndex, readPdfIndex } from '../storage/pdfIndex';
+import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
 import { generateId, toSafeFileName } from '../utils/files';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { StoredPdf } from '../models/pdf';
@@ -44,8 +44,17 @@ export default function PdfListScreen({ navigation }: Props) {
                 const record: StoredPdf = { id, name, path: destPath, size, createdAt: now, lastOpenedAt: now };
                 await appendPdfIndex(record);
                 setItems((prev) => [{ id, name, uri: destPath }, ...prev]);
-              } catch (err) {
+                Alert.alert('성공', 'PDF 파일이 목록에 추가되었습니다.');
+              } catch (err: any) {
                 console.warn('import error', err);
+                Alert.alert(
+                  '가져오기 실패',
+                  `파일을 가져오는 중 오류가 발생했습니다.\n\n오류: ${err.message || '알 수 없는 오류'}\n\n다시 시도하시겠습니까?`,
+                  [
+                    { text: '다시 시도', onPress: () => handlePick() },
+                    { text: '취소', style: 'cancel' }
+                  ]
+                );
               }
             },
           },
@@ -62,7 +71,48 @@ export default function PdfListScreen({ navigation }: Props) {
     } catch (e: any) {
       if (DocumentPicker.isCancel(e)) return;
       console.warn('Document pick error', e);
+      Alert.alert(
+        '파일 선택 오류',
+        '파일을 선택하는 중 오류가 발생했습니다. 다시 시도해주세요.',
+        [{ text: '확인' }]
+      );
     }
+  };
+
+  const handleDelete = (item: { id: string; name: string; uri?: string }) => {
+    if (!item.uri) {
+      Alert.alert('오류', '파일 경로를 찾을 수 없습니다.');
+      return;
+    }
+
+    Alert.alert(
+      '파일 삭제',
+      `"${item.name}" 파일을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
+      [
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await removePdfWithTransaction(item.id, item.uri!);
+              setItems((prev) => prev.filter((i) => i.id !== item.id));
+              Alert.alert('삭제 완료', '파일이 성공적으로 삭제되었습니다.');
+            } catch (error: any) {
+              console.warn('delete error', error);
+              Alert.alert(
+                '삭제 실패',
+                `파일을 삭제하는 중 오류가 발생했습니다.\n\n오류: ${error.message || '알 수 없는 오류'}\n\n파일이 목록에서 제거되었지만 실제 파일은 남아있을 수 있습니다.`,
+                [{ text: '확인' }]
+              );
+            }
+          },
+        },
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   return (
@@ -82,6 +132,7 @@ export default function PdfListScreen({ navigation }: Props) {
                 navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
               }
             }}
+            onLongPress={() => handleDelete(item)}
           >
             <Text style={styles.itemText}>
               {item.name}
@@ -122,6 +173,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   itemText: {
     fontSize: 20,

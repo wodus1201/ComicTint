@@ -6,9 +6,34 @@ export function buildPdfRelativePath(id: string, safeFileName: string) {
 }
 
 export function toSafeFileName(name: string) {
+  if (!name || typeof name !== 'string') {
+    return 'document.pdf';
+  }
+
   const trimmed = name.trim();
-  const replaced = trimmed.replace(/[^A-Za-z0-9._-]+/g, '_');
-  return replaced.length > 0 ? replaced : 'document.pdf';
+  if (trimmed.length === 0) {
+    return 'document.pdf';
+  }
+
+  const replaced = trimmed.replace(/[^A-Za-z0-9._-가-힣\s]+/g, '_');
+
+  const cleaned = replaced.replace(/_+/g, '_');
+
+  const final = cleaned.replace(/^_+|_+$/g, '');
+  
+  if (final.length === 0) {
+    return 'document.pdf';
+  }
+  
+  if (final.length > 100) {
+    return final.substring(0, 100) + '.pdf';
+  }
+  
+  if (!final.includes('.')) {
+    return final + '.pdf';
+  }
+  
+  return final;
 }
 
 export function generateId() {
@@ -18,4 +43,3 @@ export function generateId() {
     return v.toString(16);
   });
 }
-
