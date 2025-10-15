@@ -1,9 +1,10 @@
-import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useEffect, useState } from 'react';
+import { MoreHorizontalIcon } from 'lucide-react-native';
 import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
 import { generateId, toSafeFileName } from '../utils/files';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
@@ -14,6 +15,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
   const [items, setItems] = useState<Array<{ id: string; name: string; uri?: string }>>([]);
+  const [selectedItem, setSelectedItem] = useState<{ id: string; name: string; uri?: string } | null>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -79,6 +82,11 @@ export default function PdfListScreen({ navigation }: Props) {
     }
   };
 
+  const handleMorePress = (item: { id: string; name: string; uri?: string }) => {
+    setSelectedItem(item);
+    setMenuVisible(true);
+  };
+
   const handleDelete = (item: { id: string; name: string; uri?: string }) => {
     if (!item.uri) {
       Alert.alert('오류', '파일 경로를 찾을 수 없습니다.');
@@ -115,6 +123,11 @@ export default function PdfListScreen({ navigation }: Props) {
     );
   };
 
+  const closeMenu = () => {
+    setMenuVisible(false);
+    setSelectedItem(null);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="skyblue" barStyle="light-content" />
@@ -125,19 +138,26 @@ export default function PdfListScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => {
-              if (item.uri) {
-                navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
-              }
-            }}
-            onLongPress={() => handleDelete(item)}
-          >
-            <Text style={styles.itemText}>
-              {item.name}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.item}>
+            <TouchableOpacity
+              style={styles.itemContent}
+              onPress={() => {
+                if (item.uri) {
+                  navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
+                }
+              }}
+            >
+              <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
+                {item.name}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={() => handleMorePress(item)}
+            >
+              <MoreHorizontalIcon size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
         )}
       />
       <View style={styles.bottomContainer}>
@@ -151,6 +171,39 @@ export default function PdfListScreen({ navigation }: Props) {
           <Text style={styles.buttonText}>목록 비우기</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={menuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeMenu}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={closeMenu}
+        >
+          <View style={styles.menuContainer}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                if (selectedItem) {
+                  closeMenu();
+                  handleDelete(selectedItem);
+                }
+              }}
+            >
+              <Text style={styles.menuItemText}>삭제</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={closeMenu}
+            >
+              <Text style={styles.menuItemText}>취소</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -170,13 +223,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   item: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#ccc',
   },
+  itemContent: {
+    flex: 1,
+    paddingRight: 10,
+  },
   itemText: {
     fontSize: 20,
     fontWeight: '500',
+  },
+  moreButton: {
+    padding: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    minWidth: 200,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  menuItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  menuItemText: {
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   button: {
     alignItems: 'center',
