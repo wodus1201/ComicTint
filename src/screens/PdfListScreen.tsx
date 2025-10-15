@@ -90,13 +90,13 @@ export default function PdfListScreen({ navigation }: Props) {
         )}
       />
       <View style={styles.bottomContainer}>
-        <TouchableOpacity onPress={handlePick}>
+        <TouchableOpacity style={styles.button} onPress={handlePick}>
           <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RecentFiles')}>
           <Text style={styles.buttonText}>최근 열었던 파일</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
           <Text style={styles.buttonText}>목록 비우기</Text>
         </TouchableOpacity>
       </View>
@@ -127,15 +127,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '500',
   },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+  },
   buttonText: {
     color: 'white',
     fontWeight: '600',
   },
   bottomContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     backgroundColor: 'skyblue',
-    paddingVertical: 15,
     paddingHorizontal: 35,
   },
 });

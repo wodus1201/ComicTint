@@ -11,7 +11,7 @@ async function ensureDir(path: string) {
 export async function copyContentUriToDocumentDir(params: {
   id: string;
   safeFileName: string;
-  contentUri: string; // content://
+  contentUri: string;
 }): Promise<{ destPath: string; size: number }>
 {
   const rel = buildPdfRelativePath(params.id, params.safeFileName);
@@ -25,13 +25,11 @@ export async function copyContentUriToDocumentDir(params: {
   await ensureDir(pdfDir);
   await ensureDir(idDir);
 
-  // Simple approach: use RNBlobUtil's built-in copy for content URIs
   try {
     await RNBlobUtil.fs.cp(params.contentUri, destPath);
   } catch (error) {
-    console.warn('Direct copy failed, trying stream method:', error);
+    console.warn('copyContentUriToDocumentDir failed, trying stream method:', error);
     
-    // Fallback to stream method
     const stream = await RNBlobUtil.fs.readStream(params.contentUri, 'base64');
     const chunks: string[] = [];
     

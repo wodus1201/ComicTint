@@ -5,6 +5,7 @@ import { enableScreens } from 'react-native-screens';
 import HomeScreen from './src/screens/HomeScreen';
 import PdfListScreen from './src/screens/PdfListScreen';
 import PdfViewerScreen from './src/screens/PdfViewerScreen';
+import RecentFilesScreen from './src/screens/RecentFilesScreen';
 import { RootStackParamList } from './src/navigation/types';
 
 enableScreens(true);
@@ -19,6 +20,7 @@ function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="PdfList" component={PdfListScreen} options={{ headerShown: false }} />
           <Stack.Screen name="PdfViewer" component={PdfViewerScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="RecentFiles" component={RecentFilesScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
