@@ -12,9 +12,12 @@ type Props = {
   top: number;
   left: number;
   onClose: () => void;
+  onFileInfo: () => void;
+  onToggleFavorite: () => void;
   onRename: () => void;
   onDelete: () => void;
   onShare: () => void;
+  isFavorite?: boolean;
   containerStyle?: ViewStyle;
 };
 
@@ -23,9 +26,12 @@ export default function PdfListMenu({
   top,
   left,
   onClose,
+  onFileInfo,
+  onToggleFavorite,
   onRename,
   onDelete,
   onShare,
+  isFavorite = false,
   containerStyle,
 }: Props) {
   if (!visible) return null;
@@ -34,11 +40,11 @@ export default function PdfListMenu({
       <View style={styles.fullOverlay}>
         <TouchableWithoutFeedback>
           <View style={[styles.menuContainer, { position: 'absolute', top, left }, containerStyle]}>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={onFileInfo}>
               <Text style={styles.menuItemText}>파일 정보</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuItemText}>즐겨찾기</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={onToggleFavorite}>
+              <Text style={styles.menuItemText}>{isFavorite ? '즐겨찾기 해제' : '즐겨찾기'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={onRename}>
               <Text style={styles.menuItemText}>이름 변경</Text>

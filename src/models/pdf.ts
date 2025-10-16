@@ -5,6 +5,8 @@ export type StoredPdf = {
   size: number;
   createdAt: number;
   lastOpenedAt?: number;
+  isFavorite?: boolean;
+  favoriteOrder?: number;
 };
 
 export const PDF_INDEX_STORAGE_KEY = 'app.pdfs';

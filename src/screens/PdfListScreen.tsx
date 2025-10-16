@@ -1,4 +1,5 @@
 import { FlatList, StatusBar, Text, View } from 'react-native';
+import { useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/types';
@@ -6,18 +7,24 @@ import { usePdfImport } from '../hooks/usePdfImport';
 import { usePdfSelection } from '../hooks/usePdfSelection';
 import { useMenuPosition } from '../hooks/useMenuPosition';
 import { usePdfActions } from '../hooks/usePdfActions';
+import { useFavorites } from '../hooks/useFavorites';
 import { styles } from '../styles/PdfListScreen.styles';
+import { StoredPdf } from '../models/pdf';
 import PdfListBottomBar from '../components/PdfListBottomBar';
 import PdfListItem from '../components/PdfListItem';
 import PdfListMenu from '../components/PdfListMenu';
 import RenameModal from '../components/RenameModal';
+import FileInfoModal from '../components/FileInfoModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 
 export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
+  const [fileInfoVisible, setFileInfoVisible] = useState(false);
+  const [selectedFileInfo, setSelectedFileInfo] = useState<StoredPdf | null>(null);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const {
     editMode,
     selectedIds,
@@ -76,70 +83,138 @@ export default function PdfListScreen({ navigation }: Props) {
     }
   };
 
+  const onFileInfo = () => {
+    if (selectedItem) {
+      const fullItem = items.find(item => item.id === selectedItem.id);
+      if (fullItem) {
+        const storedPdf: StoredPdf = {
+          id: fullItem.id,
+          name: fullItem.name,
+          path: fullItem.uri || '',
+          size: fullItem.size || 0,
+          createdAt: fullItem.createdAt || Date.now(),
+          lastOpenedAt: fullItem.lastOpenedAt,
+          isFavorite: isFavorite(fullItem.id),
+          favoriteOrder: fullItem.favoriteOrder,
+        };
+        setSelectedFileInfo(storedPdf);
+        setFileInfoVisible(true);
+      }
+      closeMenu();
+    }
+  };
+
+  const onToggleFavorite = () => {
+    if (selectedItem) {
+      const fullItem = items.find(item => item.id === selectedItem.id);
+      if (fullItem) {
+        const storedPdf: StoredPdf = {
+          id: fullItem.id,
+          name: fullItem.name,
+          path: fullItem.uri || '',
+          size: fullItem.size || 0,
+          createdAt: fullItem.createdAt || Date.now(),
+          lastOpenedAt: fullItem.lastOpenedAt,
+          isFavorite: isFavorite(fullItem.id),
+          favoriteOrder: fullItem.favoriteOrder,
+        };
+        toggleFavorite(storedPdf);
+      }
+      closeMenu();
+    }
+  };
+
   const onConfirmRename = () => {
     if (selectedItem) {
       confirmRename(selectedItem);
     }
   };
 
+  const sortedItems = [...items].sort((a, b) => {
+    const aIsFavorite = isFavorite(a.id);
+    const bIsFavorite = isFavorite(b.id);
+
+    if (aIsFavorite && !bIsFavorite) return -1;
+    if (!aIsFavorite && bIsFavorite) return 1;
+
+    if (aIsFavorite && bIsFavorite) {
+      const aOrder = favorites.find(fav => fav.id === a.id)?.favoriteOrder || 0;
+      const bOrder = favorites.find(fav => fav.id === b.id)?.favoriteOrder || 0;
+      return aOrder - bOrder;
+    }
+
+    return 0;
+  });
+
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor='skyblue' barStyle='light-content' />
-      <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
-      <Text style={styles.title}>PDF 목록</Text>
-      <FlatList
-        data={items}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <PdfListItem
-            ref={r => setRef(item.id, r)}
-            item={item}
-            editMode={editMode}
-            selected={isSelected(item.id)}
-            onPressItem={it => {
-              if (!editMode && it.uri) {
-                navigation.navigate('PdfViewer', { uri: it.uri, id: it.id });
-              }
-              if (editMode) {
-                toggleSelect(it.id);
-              }
-            }}
-            onPressMore={it => onMorePress(it)}
-            onToggleSelect={id => toggleSelect(id)}
+    <>
+      <View style={styles.container}>
+        <StatusBar backgroundColor='skyblue' barStyle='light-content' />
+        <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
+        <Text style={styles.title}>PDF 목록</Text>
+        <FlatList
+          data={sortedItems}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <PdfListItem
+              ref={r => setRef(item.id, r)}
+              item={item}
+              editMode={editMode}
+              selected={isSelected(item.id)}
+              isFavorite={isFavorite(item.id)}
+              onPressItem={it => {
+                if (!editMode && it.uri) {
+                  navigation.navigate('PdfViewer', { uri: it.uri, id: it.id });
+                }
+                if (editMode) {
+                  toggleSelect(it.id);
+                }
+              }}
+              onPressMore={it => onMorePress(it)}
+              onToggleSelect={id => toggleSelect(id)}
+            />
+          )}
+        />
+        <PdfListBottomBar
+          editMode={editMode}
+          onPick={handlePick}
+          onOpenRecent={() => navigation.navigate('RecentFiles')}
+          onToggleEdit={toggleEditMode}
+          onSelectAll={selectAll}
+          onClearSelection={clearSelection}
+          onBulkShare={handleBulkShare}
+          onBulkDelete={handleBulkDelete}
+          allSelected={allSelected}
+        />
+
+        <PdfListMenu
+          visible={menuVisible}
+          top={menuTop}
+          left={menuLeft}
+          onClose={closeMenu}
+          onFileInfo={onFileInfo}
+          onToggleFavorite={onToggleFavorite}
+          onRename={onRename}
+          onDelete={onDelete}
+          onShare={onShare}
+          isFavorite={selectedItem ? isFavorite(selectedItem.id) : false}
+        />
+        {renameVisible && (
+          <RenameModal
+            visible={renameVisible}
+            value={renameText}
+            onChangeText={setRenameText}
+            onCancel={closeRename}
+            onConfirm={onConfirmRename}
           />
         )}
+      </View>
+      <FileInfoModal
+        visible={fileInfoVisible}
+        file={selectedFileInfo}
+        onClose={() => setFileInfoVisible(false)}
       />
-      <PdfListBottomBar
-        editMode={editMode}
-        onPick={handlePick}
-        onOpenRecent={() => navigation.navigate('RecentFiles')}
-        onToggleEdit={toggleEditMode}
-        onSelectAll={selectAll}
-        onClearSelection={clearSelection}
-        onBulkShare={handleBulkShare}
-        onBulkDelete={handleBulkDelete}
-        allSelected={allSelected}
-      />
-
-      <PdfListMenu
-        visible={menuVisible}
-        top={menuTop}
-        left={menuLeft}
-        onClose={closeMenu}
-        onRename={onRename}
-        onDelete={onDelete}
-        onShare={onShare}
-      />
-      {renameVisible && (
-        <RenameModal
-          visible={renameVisible}
-          value={renameText}
-          onChangeText={setRenameText}
-          onCancel={closeRename}
-          onConfirm={onConfirmRename}
-        />
-      )}
-    </View>
+    </>
   );
 }

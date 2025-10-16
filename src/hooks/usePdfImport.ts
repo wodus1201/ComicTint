@@ -8,7 +8,16 @@ import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { generateId, toSafeFileName } from '../utils/files';
 import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
 
-type PdfItem = { id: string; name: string; uri?: string };
+type PdfItem = {
+  id: string;
+  name: string;
+  uri?: string;
+  size?: number;
+  createdAt?: number;
+  lastOpenedAt?: number;
+  isFavorite?: boolean;
+  favoriteOrder?: number;
+};
 
 export function usePdfImport(
   navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>,
@@ -21,7 +30,18 @@ export function usePdfImport(
 
   const loadPdfItems = async () => {
     const stored = await readPdfIndex();
-    setItems(stored.map(s => ({ id: s.id, name: s.name, uri: s.path })));
+    setItems(
+      stored.map(s => ({
+        id: s.id,
+        name: s.name,
+        uri: s.path,
+        size: s.size,
+        createdAt: s.createdAt,
+        lastOpenedAt: s.lastOpenedAt,
+        isFavorite: s.isFavorite,
+        favoriteOrder: s.favoriteOrder,
+      })),
+    );
   };
 
   const handlePick = async () => {
