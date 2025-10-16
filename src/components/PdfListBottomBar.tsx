@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { styles } from '../styles/PdfListBottomBar.style';
 
 type Props = {
   editMode: boolean;
@@ -59,22 +60,3 @@ export default function PdfListBottomBar({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bottomContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 35,
-    backgroundColor: 'skyblue',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-  },
-  buttonText: {
-    fontWeight: '600',
-    color: 'white',
-  },
-});
