@@ -1,4 +1,4 @@
-import { FlatList, StatusBar, Text, View } from 'react-native';
+import { FlatList, StatusBar, View } from 'react-native';
 import { useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +25,8 @@ export default function PdfListScreen({ navigation }: Props) {
   const [fileInfoVisible, setFileInfoVisible] = useState(false);
   const [selectedFileInfo, setSelectedFileInfo] = useState<StoredPdf | null>(null);
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
+  const [sortMenuTop, setSortMenuTop] = useState(0);
+  const [sortMenuLeft, setSortMenuLeft] = useState(0);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -154,7 +156,18 @@ export default function PdfListScreen({ navigation }: Props) {
       <View style={styles.container}>
         <StatusBar backgroundColor='skyblue' barStyle='light-content' />
         <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
-        <SortHeader title={'PDF 목록'} onOpenSortMenu={() => setSortMenuVisible(true)} />
+        <SortHeader
+          title={'PDF 목록'}
+          onOpenSortMenu={({ x, y, width, height }) => {
+            const MENU_WIDTH = 200;
+            const V_OFFSET = 8;
+            const top = y + height + V_OFFSET;
+            const left = Math.max(8, Math.min(x + width - MENU_WIDTH, Math.max(8, x)));
+            setSortMenuTop(top);
+            setSortMenuLeft(left);
+            setSortMenuVisible(true);
+          }}
+        />
         <FlatList
           data={sortedItems}
           keyExtractor={item => item.id}
@@ -212,7 +225,12 @@ export default function PdfListScreen({ navigation }: Props) {
             onConfirm={onConfirmRename}
           />
         )}
-        <SortMenu visible={sortMenuVisible} onClose={() => setSortMenuVisible(false)} />
+        <SortMenu
+          visible={sortMenuVisible}
+          onClose={() => setSortMenuVisible(false)}
+          top={sortMenuTop}
+          left={sortMenuLeft}
+        />
       </View>
       <FileInfoModal
         visible={fileInfoVisible}

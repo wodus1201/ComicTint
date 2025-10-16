@@ -1,17 +1,19 @@
-import React from 'react';
-import { Modal, View, TouchableOpacity, Text } from 'react-native';
+import { Pressable, View, TouchableOpacity, Text, Modal } from 'react-native';
 import { styles } from '../styles/PdfListScreen.styles';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
+  top: number;
+  left: number;
 };
 
-export default function SortMenu({ visible, onClose }: Props) {
+export default function SortMenu({ visible, onClose, top, left }: Props) {
+  if (!visible) return null;
   return (
     <Modal visible={visible} transparent animationType='fade' onRequestClose={onClose}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.menuContainer}>
+      <Pressable onPress={onClose} style={styles.popoverOverlay}>
+        <View style={[styles.popoverMenuContainer, { top: top - 10, left: left - 10 }]}>
           <TouchableOpacity
             accessibilityLabel='추가순'
             testID='sort-addedDesc'
@@ -45,7 +47,7 @@ export default function SortMenu({ visible, onClose }: Props) {
             <Text style={styles.menuItemText}>열어본순</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Pressable>
     </Modal>
   );
 }

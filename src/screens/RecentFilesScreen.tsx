@@ -64,7 +64,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     backgroundColor: 'skyblue',
-    padding: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   listContent: {
     paddingHorizontal: 20,
