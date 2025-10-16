@@ -1,7 +1,4 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ViewStyle, TouchableWithoutFeedback } from 'react-native';
-
-type Item = { id: string; name: string; uri?: string };
+import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 
 type Props = {
   visible: boolean;

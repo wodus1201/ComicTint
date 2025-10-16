@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, TouchableOpacity, Pressable, Animated, Easing } from 'react-native';
+import { ActivityIndicator, Animated, Easing, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
-import { ArrowLeftIcon, ArrowRightIcon, RefreshCcwIcon } from 'lucide-react-native';
 import Pdf from 'react-native-pdf';
+import { ArrowLeftIcon, ArrowRightIcon, RefreshCcwIcon } from 'lucide-react-native';
+import { RootStackParamList } from '../navigation/types';
 import { updatePdfIndex } from '../storage/pdfIndex';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfViewer'>;
 
 export default function PdfViewerScreen({ route, navigation }: Props) {
   const { uri, id } = route.params;
+
   const [resolvedUri, setResolvedUri] = useState<string | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
+
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
 

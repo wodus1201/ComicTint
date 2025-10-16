@@ -1,5 +1,5 @@
-import React, { forwardRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { forwardRef } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MoreHorizontalIcon } from 'lucide-react-native';
 import { stripExtension } from '../utils/files';
 
@@ -32,8 +32,8 @@ const PdfListItem = forwardRef<any, Props>(({ item, editMode, selected, onPressI
           </View>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity 
-          style={styles.moreButton} 
+        <TouchableOpacity
+          style={styles.moreButton}
           ref={ref}
           onPress={() => onPressMore(item)}
         >

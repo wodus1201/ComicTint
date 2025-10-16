@@ -1,12 +1,12 @@
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
+import { RootStackParamList } from './src/navigation/types';
 import HomeScreen from './src/screens/HomeScreen';
 import PdfListScreen from './src/screens/PdfListScreen';
 import PdfViewerScreen from './src/screens/PdfViewerScreen';
 import RecentFilesScreen from './src/screens/RecentFilesScreen';
-import { RootStackParamList } from './src/navigation/types';
 
 enableScreens(true);
 

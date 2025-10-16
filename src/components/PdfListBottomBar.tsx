@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Props = {
   editMode: boolean;
+  allSelected: boolean;
   onPick: () => void;
   onOpenRecent: () => void;
   onToggleEdit: () => void;
@@ -10,7 +10,6 @@ type Props = {
   onClearSelection: () => void;
   onBulkShare: () => void;
   onBulkDelete: () => void;
-  allSelected: boolean;
 };
 
 export default function PdfListBottomBar({ editMode, onPick, onOpenRecent, onToggleEdit, onSelectAll, onClearSelection, onBulkShare, onBulkDelete, allSelected }: Props) {

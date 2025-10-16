@@ -1,32 +1,34 @@
-import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View, Dimensions, TouchableWithoutFeedback, TextInput, Share } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Dimensions, FlatList, Share, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { useEffect, useRef, useState } from 'react';
-import { appendPdfIndex, readPdfIndex, removePdfWithTransaction, updatePdfIndex } from '../storage/pdfIndex';
-import { generateId, toSafeFileName, stripExtension } from '../utils/files';
-import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { StoredPdf } from '../models/pdf';
+import PdfListBottomBar from '../components/PdfListBottomBar';
 import PdfListItem from '../components/PdfListItem';
 import PdfListMenu from '../components/PdfListMenu';
 import RenameModal from '../components/RenameModal';
-import PdfListBottomBar from '../components/PdfListBottomBar';
+import { copyContentUriToDocumentDir } from '../utils/fileCopy';
+import { generateId, stripExtension, toSafeFileName } from '../utils/files';
+import { appendPdfIndex, readPdfIndex, removePdfWithTransaction, updatePdfIndex } from '../storage/pdfIndex';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 
 export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
+  const moreBtnRefs = useRef<Record<string, any>>({});
+
   const [items, setItems] = useState<Array<{ id: string; name: string; uri?: string }>>([]);
   const [selectedItem, setSelectedItem] = useState<{ id: string; name: string; uri?: string } | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const [editMode, setEditMode] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuTop, setMenuTop] = useState(0);
   const [menuLeft, setMenuLeft] = useState(0);
-  const moreBtnRefs = useRef<Record<string, any>>({});
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameText, setRenameText] = useState('');
-  const [editMode, setEditMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     (async () => {

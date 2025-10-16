@@ -1,10 +1,10 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
 import { useEffect, useState } from 'react';
-import { readPdfIndex } from '../storage/pdfIndex';
+import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RootStackParamList } from '../navigation/types';
 import { StoredPdf } from '../models/pdf';
+import { readPdfIndex } from '../storage/pdfIndex';
 import { formatTimeAgo } from '../utils/timeFormat';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecentFiles'>;
