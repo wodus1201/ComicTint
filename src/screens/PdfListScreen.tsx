@@ -30,6 +30,11 @@ export default function PdfListScreen({ navigation }: Props) {
   const [sortMenuTop, setSortMenuTop] = useState(0);
   const [sortMenuLeft, setSortMenuLeft] = useState(0);
   const [sortOrder, setSortOrderState] = useState<SortOrder>(DEFAULT_SORT_ORDER);
+  const [renameTarget, setRenameTarget] = useState<{
+    id: string;
+    name: string;
+    uri?: string;
+  } | null>(null);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -106,6 +111,7 @@ export default function PdfListScreen({ navigation }: Props) {
   const onRename = () => {
     if (selectedItem) {
       openRename(selectedItem);
+      setRenameTarget(selectedItem);
       closeMenu();
     }
   };
@@ -166,8 +172,9 @@ export default function PdfListScreen({ navigation }: Props) {
   };
 
   const onConfirmRename = () => {
-    if (selectedItem) {
-      confirmRename(selectedItem);
+    if (renameTarget) {
+      confirmRename(renameTarget);
+      setRenameTarget(null);
     }
   };
 
@@ -258,7 +265,10 @@ export default function PdfListScreen({ navigation }: Props) {
             visible={renameVisible}
             value={renameText}
             onChangeText={setRenameText}
-            onCancel={closeRename}
+            onCancel={() => {
+              closeRename();
+              setRenameTarget(null);
+            }}
             onConfirm={onConfirmRename}
           />
         )}

@@ -63,6 +63,10 @@ export function usePdfActions(
       `"${item.name}" 파일을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
       [
         {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
           text: '삭제',
           style: 'destructive',
           onPress: async () => {
@@ -81,9 +85,6 @@ export function usePdfActions(
               );
             }
           },
-        },
-        {
-          text: '이름 변경',
         },
       ],
     );

@@ -134,8 +134,7 @@ export function usePdfImport(
     const now = Date.now();
     const record: StoredPdf = { id, name, path: destPath, size, createdAt: now };
     await appendPdfIndex(record);
-    setItems(prev => [{ id, name, uri: destPath }, ...prev]);
-    Alert.alert('성공', 'PDF 파일이 목록에 추가되었습니다.');
+    setItems(prev => [{ id, name, uri: destPath, size, createdAt: now }, ...prev]);
   };
 
   const replaceExistingFile = async (pickedUri: string, name: string) => {
