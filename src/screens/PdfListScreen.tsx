@@ -37,7 +37,7 @@ export default function PdfListScreen({ navigation }: Props) {
   } | null>(null);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const {
     editMode,
     selectedIds,
@@ -190,9 +190,7 @@ export default function PdfListScreen({ navigation }: Props) {
     try {
       setSortOrderState(order);
       await setSortOrder(order);
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   };
 
   return (
@@ -225,7 +223,7 @@ export default function PdfListScreen({ navigation }: Props) {
               isFavorite={isFavorite(item.id)}
               onPressItem={it => {
                 if (!editMode && it.uri) {
-                  navigation.navigate('PdfViewer', { uri: it.uri, id: it.id });
+                  navigation.navigate('PdfViewer', { uri: it.uri, id: it.id, name: it.name });
                 }
                 if (editMode) {
                   toggleSelect(it.id);
