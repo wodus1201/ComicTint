@@ -6,7 +6,7 @@ import { RootStackParamList } from '../navigation/types';
 import { StoredPdf } from '../models/pdf';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { generateId, toSafeFileName } from '../utils/files';
-import { appendPdfIndex, readPdfIndex } from '../storage/pdfIndex';
+import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
 
 type PdfItem = { id: string; name: string; uri?: string };
 
@@ -59,20 +59,35 @@ export function usePdfImport(
     }
   };
 
+  const checkDuplicateFile = (fileName: string): boolean => {
+    return items.some(item => item.name === fileName);
+  };
+
   const addToLibrary = async (pickedUri: string, name: string) => {
     try {
-      const id = generateId();
-      const safe = toSafeFileName(name);
-      const { destPath, size } = await copyContentUriToDocumentDir({
-        id,
-        safeFileName: safe,
-        contentUri: pickedUri,
-      });
-      const now = Date.now();
-      const record: StoredPdf = { id, name, path: destPath, size, createdAt: now };
-      await appendPdfIndex(record);
-      setItems(prev => [{ id, name, uri: destPath }, ...prev]);
-      Alert.alert('성공', 'PDF 파일이 목록에 추가되었습니다.');
+      if (checkDuplicateFile(name)) {
+        Alert.alert(
+          '중복 파일 발견',
+          `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
+          [
+            {
+              text: '덮어쓰기',
+              onPress: () => replaceExistingFile(pickedUri, name),
+            },
+            {
+              text: '새 이름으로 저장',
+              onPress: () => addWithNewName(pickedUri, name),
+            },
+            {
+              text: '취소',
+              style: 'cancel',
+            },
+          ],
+        );
+        return;
+      }
+
+      await addNewFile(pickedUri, name);
     } catch (err: any) {
       console.warn('import error', err);
       Alert.alert(
@@ -85,6 +100,78 @@ export function usePdfImport(
           { text: '취소', style: 'cancel' },
         ],
       );
+    }
+  };
+
+  const addNewFile = async (pickedUri: string, name: string) => {
+    const id = generateId();
+    const safe = toSafeFileName(name);
+    const { destPath, size } = await copyContentUriToDocumentDir({
+      id,
+      safeFileName: safe,
+      contentUri: pickedUri,
+    });
+    const now = Date.now();
+    const record: StoredPdf = { id, name, path: destPath, size, createdAt: now };
+    await appendPdfIndex(record);
+    setItems(prev => [{ id, name, uri: destPath }, ...prev]);
+    Alert.alert('성공', 'PDF 파일이 목록에 추가되었습니다.');
+  };
+
+  const replaceExistingFile = async (pickedUri: string, name: string) => {
+    try {
+      const existingItem = items.find(item => item.name === name);
+      if (!existingItem) {
+        Alert.alert('오류', '기존 파일을 찾을 수 없습니다.');
+        return;
+      }
+
+      const safe = toSafeFileName(name);
+      const { destPath, size } = await copyContentUriToDocumentDir({
+        id: existingItem.id,
+        safeFileName: safe,
+        contentUri: pickedUri,
+      });
+      const now = Date.now();
+      const record: StoredPdf = {
+        id: existingItem.id,
+        name,
+        path: destPath,
+        size,
+        createdAt: now,
+      };
+
+      await removePdfWithTransaction(existingItem.id, existingItem.uri || '');
+      await appendPdfIndex(record);
+
+      setItems(prev =>
+        prev.map(item =>
+          item.id === existingItem.id ? { id: existingItem.id, name, uri: destPath } : item,
+        ),
+      );
+
+      Alert.alert('성공', '파일이 성공적으로 교체되었습니다.');
+    } catch (err: any) {
+      console.warn('replace error', err);
+      Alert.alert('교체 실패', '파일 교체 중 오류가 발생했습니다.');
+    }
+  };
+
+  const addWithNewName = async (pickedUri: string, originalName: string) => {
+    try {
+      let newName = originalName;
+      let counter = 1;
+
+      while (checkDuplicateFile(newName)) {
+        const nameWithoutExt = originalName.replace(/\.pdf$/i, '');
+        newName = `${nameWithoutExt} (${counter}).pdf`;
+        counter++;
+      }
+
+      await addNewFile(pickedUri, newName);
+    } catch (err: any) {
+      console.warn('add with new name error', err);
+      Alert.alert('저장 실패', '새 이름으로 저장하는 중 오류가 발생했습니다.');
     }
   };
 
