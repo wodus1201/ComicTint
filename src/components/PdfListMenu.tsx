@@ -5,6 +5,8 @@ import {
   TouchableWithoutFeedback,
   View,
   ViewStyle,
+  Modal,
+  Dimensions,
 } from 'react-native';
 
 type Props = {
@@ -34,31 +36,42 @@ export default function PdfListMenu({
   isFavorite = false,
   containerStyle,
 }: Props) {
+  const { width, height } = Dimensions.get('screen');
+
   if (!visible) return null;
+
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
-      <View style={styles.fullOverlay}>
-        <TouchableWithoutFeedback>
-          <View style={[styles.menuContainer, { position: 'absolute', top, left }, containerStyle]}>
-            <TouchableOpacity style={styles.menuItem} onPress={onFileInfo}>
-              <Text style={styles.menuItemText}>파일 정보</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={onToggleFavorite}>
-              <Text style={styles.menuItemText}>{isFavorite ? '즐겨찾기 해제' : '즐겨찾기'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={onRename}>
-              <Text style={styles.menuItemText}>이름 변경</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={onDelete}>
-              <Text style={styles.menuItemText}>삭제</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={onShare}>
-              <Text style={styles.menuItemText}>공유</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    </TouchableWithoutFeedback>
+    <Modal visible={visible} transparent animationType='fade' onRequestClose={onClose}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={[styles.fullOverlay, { width, height }]}>
+          <TouchableWithoutFeedback>
+            <View
+              style={[
+                styles.menuContainer,
+                { position: 'absolute', top: top - 23, left },
+                containerStyle,
+              ]}
+            >
+              <TouchableOpacity style={styles.menuItem} onPress={onFileInfo}>
+                <Text style={styles.menuItemText}>파일 정보</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={onToggleFavorite}>
+                <Text style={styles.menuItemText}>{isFavorite ? '즐겨찾기 해제' : '즐겨찾기'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={onRename}>
+                <Text style={styles.menuItemText}>이름 변경</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={onDelete}>
+                <Text style={styles.menuItemText}>삭제</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={onShare}>
+                <Text style={styles.menuItemText}>공유</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
   );
 }
 
