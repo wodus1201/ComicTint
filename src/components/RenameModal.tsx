@@ -56,11 +56,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   renameContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
     width: '80%',
     paddingVertical: 16,
     paddingHorizontal: 20,
+    backgroundColor: 'white',
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   renameInput: {
-    borderWidth: 1,
-    borderColor: 'lightgray',
-    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 7,
     fontSize: 16,
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    borderRadius: 12,
   },
   renameActions: {
     marginTop: 12,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   renameButtonPrimaryText: {
     fontSize: 16,
-    color: 'white',
     fontWeight: '600',
+    color: 'white',
   },
 });

@@ -60,12 +60,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
+    backgroundColor: 'skyblue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     fontSize: 30,
     fontWeight: '600',
     color: 'white',
-    backgroundColor: 'skyblue',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -81,15 +81,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: 20,
-    fontWeight: '500',
     flex: 1,
     marginRight: 10,
+    fontSize: 20,
+    fontWeight: '500',
   },
   timeText: {
+    fontWeight: '400',
     fontSize: 14,
     color: '#666',
-    fontWeight: '400',
   },
   button: {
     alignItems: 'center',
@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 100,
   },
   buttonText: {
-    color: 'white',
     fontWeight: '600',
+    color: 'white',
   },
   bottomContainer: {
     flexDirection: 'row',

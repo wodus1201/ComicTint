@@ -52,15 +52,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
+    margin: 0,
     fontSize: 40,
     fontWeight: 'bold',
-    margin: 0,
     color: 'dimgray',
   },
   subtitle: {
+    marginBottom: 20,
     fontSize: 20,
     fontWeight: '600',
-    marginBottom: 20,
     color: 'dimgray',
   },
   startButton: {
@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   startButtonText: {
-    color: 'white',
     fontWeight: '600',
+    color: 'white',
   },
   themeButton: {
     position: 'absolute',
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   themeButtonText: {
-    color: 'white',
     fontWeight: '600',
+    color: 'white',
   },
 });

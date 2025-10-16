@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: 'skyblue',
     paddingHorizontal: 35,
+    backgroundColor: 'skyblue',
   },
   button: {
     alignItems: 'center',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   buttonText: {
-    color: 'white',
     fontWeight: '600',
+    color: 'white',
   },
 });

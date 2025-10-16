@@ -84,9 +84,9 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   menuContainer: {
+    minWidth: 200,
     backgroundColor: 'white',
     borderRadius: 12,
-    minWidth: 200,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

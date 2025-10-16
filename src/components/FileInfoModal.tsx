@@ -71,9 +71,9 @@ export default function FileInfoModal({ visible, file, onClose }: Props) {
 
 const styles = StyleSheet.create({
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   overlayTouchable: {
     position: 'absolute',
@@ -83,10 +83,10 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   popover: {
+    width: '80%',
+    padding: 20,
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 20,
-    width: '80%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   title: {
+    color: '#333',
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
   },
   content: {
     gap: 10,
@@ -113,15 +113,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   label: {
+    flex: 1,
     fontSize: 14,
     fontWeight: '500',
     color: '#666',
-    flex: 1,
   },
   value: {
-    fontSize: 14,
-    color: '#333',
     flex: 2,
     textAlign: 'right',
+    fontSize: 14,
+    color: '#333',
   },
 });
