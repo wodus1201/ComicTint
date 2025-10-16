@@ -10,3 +10,9 @@ export type StoredPdf = {
 };
 
 export const PDF_INDEX_STORAGE_KEY = 'app.pdfs';
+
+export type SortOrder = 'addedDesc' | 'sizeDesc' | 'nameAsc' | 'recentOpenedDesc';
+
+export const DEFAULT_SORT_ORDER: SortOrder = 'addedDesc';
+
+export const SORT_ORDER_STORAGE_KEY = 'app.sortOrder';

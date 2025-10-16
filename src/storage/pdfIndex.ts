@@ -1,5 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PDF_INDEX_STORAGE_KEY, StoredPdf } from '../models/pdf';
+import {
+  PDF_INDEX_STORAGE_KEY,
+  StoredPdf,
+  SortOrder,
+  SORT_ORDER_STORAGE_KEY,
+  DEFAULT_SORT_ORDER,
+} from '../models/pdf';
 
 export async function readPdfIndex(): Promise<StoredPdf[]> {
   try {
@@ -59,5 +65,26 @@ export async function removePdfWithTransaction(id: string, filePath: string): Pr
   } catch (error) {
     console.warn('removePdfWithTransaction error:', error);
     throw error;
+  }
+}
+
+export async function getSortOrder(): Promise<SortOrder> {
+  try {
+    const raw = await AsyncStorage.getItem(SORT_ORDER_STORAGE_KEY);
+    if (!raw) return DEFAULT_SORT_ORDER;
+    const value = JSON.parse(raw) as SortOrder;
+    return value ?? DEFAULT_SORT_ORDER;
+  } catch (e) {
+    console.warn('getSortOrder error', e);
+    return DEFAULT_SORT_ORDER;
+  }
+}
+
+export async function setSortOrder(order: SortOrder): Promise<void> {
+  try {
+    await AsyncStorage.setItem(SORT_ORDER_STORAGE_KEY, JSON.stringify(order));
+  } catch (e) {
+    console.warn('setSortOrder error', e);
+    throw e;
   }
 }
