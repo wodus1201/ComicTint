@@ -32,9 +32,9 @@ const PdfListItem = forwardRef<any, Props>(
         </TouchableOpacity>
         {editMode ? (
           <TouchableOpacity style={styles.moreButton} onPress={() => onToggleSelect(item.id)}>
-            <View style={styles.checkOuter}>
-              {selected ? <View style={styles.checkInner} /> : null}
-            </View>
+            <View
+              style={[styles.checkOuter, { backgroundColor: selected ? 'skyblue' : 'white' }]}
+            ></View>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.moreButton} ref={ref} onPress={() => onPressMore(item)}>
@@ -78,17 +78,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   checkOuter: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
     borderRadius: '100%',
-  },
-  checkInner: {
-    width: 20,
-    height: 20,
-    borderRadius: '100%',
-    backgroundColor: 'skyblue',
+    borderWidth: 3,
+    borderColor: 'darkgray',
   },
 });
