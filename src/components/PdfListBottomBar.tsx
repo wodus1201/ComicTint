@@ -26,7 +26,7 @@ export default function PdfListBottomBar({
   return (
     <View style={styles.bottomContainer}>
       {editMode ? (
-        <>
+        <View key='edit-mode' style={{ flexDirection: 'row' }}>
           <TouchableOpacity
             style={styles.button}
             onPress={allSelected ? onClearSelection : onSelectAll}
@@ -42,9 +42,9 @@ export default function PdfListBottomBar({
           <TouchableOpacity style={styles.button} onPress={onToggleEdit}>
             <Text style={styles.buttonText}>완료</Text>
           </TouchableOpacity>
-        </>
+        </View>
       ) : (
-        <>
+        <View key='normal-mode' style={{ flexDirection: 'row' }}>
           <TouchableOpacity style={styles.button} onPress={onPick}>
             <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
           </TouchableOpacity>
@@ -54,7 +54,7 @@ export default function PdfListBottomBar({
           <TouchableOpacity style={styles.button} onPress={onToggleEdit}>
             <Text style={styles.buttonText}>목록 수정</Text>
           </TouchableOpacity>
-        </>
+        </View>
       )}
     </View>
   );
