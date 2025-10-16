@@ -11,6 +11,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { styles } from '../styles/PdfListScreen.styles';
 import { StoredPdf } from '../models/pdf';
 import { SortOrder, DEFAULT_SORT_ORDER } from '../models/pdf';
+import { sortWithFavoritesPinned } from '../utils/sort';
 import { getSortOrder, setSortOrder } from '../storage/pdfIndex';
 import PdfListBottomBar from '../components/PdfListBottomBar';
 import PdfListItem from '../components/PdfListItem';
@@ -77,32 +78,6 @@ export default function PdfListScreen({ navigation }: Props) {
       setSortOrderState(saved);
     })();
   }, []);
-
-  const applySort = (arr: typeof items, order: SortOrder) => {
-    const safeStr = (s?: string) => (s || '').toLocaleLowerCase();
-    const safeNum = (n?: number) => (typeof n === 'number' ? n : 0);
-    const byCreatedDesc = (a: any, b: any) => safeNum(b.createdAt) - safeNum(a.createdAt);
-    const bySizeDesc = (a: any, b: any) => safeNum(b.size) - safeNum(a.size);
-    const byNameAsc = (a: any, b: any) => safeStr(a.name).localeCompare(safeStr(b.name));
-    const byRecentOpenedDesc = (a: any, b: any) =>
-      safeNum(b.lastOpenedAt) - safeNum(a.lastOpenedAt);
-
-    const comparator = (() => {
-      switch (order) {
-        case 'sizeDesc':
-          return bySizeDesc;
-        case 'nameAsc':
-          return byNameAsc;
-        case 'recentOpenedDesc':
-          return byRecentOpenedDesc;
-        case 'addedDesc':
-        default:
-          return byCreatedDesc;
-      }
-    })();
-
-    return [...arr].sort(comparator);
-  };
 
   const onMorePress = (item: { id: string; name: string; uri?: string }) => {
     handleMorePress(item, editMode);
@@ -178,13 +153,10 @@ export default function PdfListScreen({ navigation }: Props) {
     }
   };
 
-  const sortedItems = useMemo(() => {
-    const favs = items.filter(it => isFavorite(it.id));
-    const normals = items.filter(it => !isFavorite(it.id));
-    const sortedFavs = applySort(favs, sortOrder);
-    const sortedNormals = applySort(normals, sortOrder);
-    return [...sortedFavs, ...sortedNormals];
-  }, [items, sortOrder, isFavorite]);
+  const sortedItems = useMemo(
+    () => sortWithFavoritesPinned(items as StoredPdf[], sortOrder, isFavorite),
+    [items, sortOrder, isFavorite],
+  );
 
   const handleSelectSort = async (order: SortOrder) => {
     try {
