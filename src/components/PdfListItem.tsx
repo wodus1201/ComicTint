@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
   moreButton: {
     padding: 5,
     borderRadius: 20,
-    backgroundColor: 'lightgray',
   },
   checkOuter: {
     width: 20,

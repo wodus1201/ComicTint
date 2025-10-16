@@ -1,5 +1,5 @@
 import { FlatList, StatusBar, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/types';
@@ -10,6 +10,8 @@ import { usePdfActions } from '../hooks/usePdfActions';
 import { useFavorites } from '../hooks/useFavorites';
 import { styles } from '../styles/PdfListScreen.styles';
 import { StoredPdf } from '../models/pdf';
+import { SortOrder, DEFAULT_SORT_ORDER } from '../models/pdf';
+import { getSortOrder, setSortOrder } from '../storage/pdfIndex';
 import PdfListBottomBar from '../components/PdfListBottomBar';
 import PdfListItem from '../components/PdfListItem';
 import PdfListMenu from '../components/PdfListMenu';
@@ -27,6 +29,7 @@ export default function PdfListScreen({ navigation }: Props) {
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const [sortMenuTop, setSortMenuTop] = useState(0);
   const [sortMenuLeft, setSortMenuLeft] = useState(0);
+  const [sortOrder, setSortOrderState] = useState<SortOrder>(DEFAULT_SORT_ORDER);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -62,6 +65,39 @@ export default function PdfListScreen({ navigation }: Props) {
     toggleEditMode,
     clearSelection,
   );
+
+  useEffect(() => {
+    (async () => {
+      const saved = await getSortOrder();
+      setSortOrderState(saved);
+    })();
+  }, []);
+
+  const applySort = (arr: typeof items, order: SortOrder) => {
+    const safeStr = (s?: string) => (s || '').toLocaleLowerCase();
+    const safeNum = (n?: number) => (typeof n === 'number' ? n : 0);
+    const byCreatedDesc = (a: any, b: any) => safeNum(b.createdAt) - safeNum(a.createdAt);
+    const bySizeDesc = (a: any, b: any) => safeNum(b.size) - safeNum(a.size);
+    const byNameAsc = (a: any, b: any) => safeStr(a.name).localeCompare(safeStr(b.name));
+    const byRecentOpenedDesc = (a: any, b: any) =>
+      safeNum(b.lastOpenedAt) - safeNum(a.lastOpenedAt);
+
+    const comparator = (() => {
+      switch (order) {
+        case 'sizeDesc':
+          return bySizeDesc;
+        case 'nameAsc':
+          return byNameAsc;
+        case 'recentOpenedDesc':
+          return byRecentOpenedDesc;
+        case 'addedDesc':
+        default:
+          return byCreatedDesc;
+      }
+    })();
+
+    return [...arr].sort(comparator);
+  };
 
   const onMorePress = (item: { id: string; name: string; uri?: string }) => {
     handleMorePress(item, editMode);
@@ -135,21 +171,22 @@ export default function PdfListScreen({ navigation }: Props) {
     }
   };
 
-  const sortedItems = [...items].sort((a, b) => {
-    const aIsFavorite = isFavorite(a.id);
-    const bIsFavorite = isFavorite(b.id);
+  const sortedItems = useMemo(() => {
+    const favs = items.filter(it => isFavorite(it.id));
+    const normals = items.filter(it => !isFavorite(it.id));
+    const sortedFavs = applySort(favs, sortOrder);
+    const sortedNormals = applySort(normals, sortOrder);
+    return [...sortedFavs, ...sortedNormals];
+  }, [items, sortOrder, isFavorite]);
 
-    if (aIsFavorite && !bIsFavorite) return -1;
-    if (!aIsFavorite && bIsFavorite) return 1;
-
-    if (aIsFavorite && bIsFavorite) {
-      const aOrder = favorites.find(fav => fav.id === a.id)?.favoriteOrder || 0;
-      const bOrder = favorites.find(fav => fav.id === b.id)?.favoriteOrder || 0;
-      return aOrder - bOrder;
+  const handleSelectSort = async (order: SortOrder) => {
+    try {
+      setSortOrderState(order);
+      await setSortOrder(order);
+    } catch (e) {
+      // ignore
     }
-
-    return 0;
-  });
+  };
 
   return (
     <>
@@ -230,6 +267,8 @@ export default function PdfListScreen({ navigation }: Props) {
           onClose={() => setSortMenuVisible(false)}
           top={sortMenuTop}
           left={sortMenuLeft}
+          currentOrder={sortOrder}
+          onSelect={handleSelectSort}
         />
       </View>
       <FileInfoModal
