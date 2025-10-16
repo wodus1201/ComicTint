@@ -15,6 +15,8 @@ import PdfListItem from '../components/PdfListItem';
 import PdfListMenu from '../components/PdfListMenu';
 import RenameModal from '../components/RenameModal';
 import FileInfoModal from '../components/FileInfoModal';
+import SortHeader from '../components/SortHeader';
+import SortMenu from '../components/SortMenu';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 
@@ -22,6 +24,7 @@ export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
   const [fileInfoVisible, setFileInfoVisible] = useState(false);
   const [selectedFileInfo, setSelectedFileInfo] = useState<StoredPdf | null>(null);
+  const [sortMenuVisible, setSortMenuVisible] = useState(false);
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -151,7 +154,7 @@ export default function PdfListScreen({ navigation }: Props) {
       <View style={styles.container}>
         <StatusBar backgroundColor='skyblue' barStyle='light-content' />
         <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
-        <Text style={styles.title}>PDF 목록</Text>
+        <SortHeader title={'PDF 목록'} onOpenSortMenu={() => setSortMenuVisible(true)} />
         <FlatList
           data={sortedItems}
           keyExtractor={item => item.id}
@@ -209,6 +212,7 @@ export default function PdfListScreen({ navigation }: Props) {
             onConfirm={onConfirmRename}
           />
         )}
+        <SortMenu visible={sortMenuVisible} onClose={() => setSortMenuVisible(false)} />
       </View>
       <FileInfoModal
         visible={fileInfoVisible}

@@ -8,8 +8,24 @@ export const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '600',
     color: 'white',
-    backgroundColor: 'skyblue',
     padding: 10,
+  },
+  titleContainer: {
+    backgroundColor: 'skyblue',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sortButtonContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  sortButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 18,
   },
   listContent: {
     paddingHorizontal: 20,
