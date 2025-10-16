@@ -8,4 +8,3 @@ export type StoredPdf = {
 };
 
 export const PDF_INDEX_STORAGE_KEY = 'app.pdfs';
-

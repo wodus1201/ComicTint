@@ -18,9 +18,38 @@ export default function PdfListScreen({ navigation }: Props) {
   const safeAreaInsets = useSafeAreaInsets();
 
   const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
-  const {editMode, selectedIds, toggleEditMode, toggleSelect, selectAll, clearSelection, isSelected, allSelected} = usePdfSelection(items);
-  const { menuVisible, menuTop, menuLeft, selectedItem, handleMorePress, closeMenu, setRef } = useMenuPosition();
-  const { renameVisible, renameText, setRenameText, handleShare, handleBulkShare, handleDelete, handleBulkDelete, openRename, closeRename, confirmRename } = usePdfActions(items, selectedIds, updateItem, removeItem, removeItems, toggleEditMode, clearSelection);
+  const {
+    editMode,
+    selectedIds,
+    toggleEditMode,
+    toggleSelect,
+    selectAll,
+    clearSelection,
+    isSelected,
+    allSelected,
+  } = usePdfSelection(items);
+  const { menuVisible, menuTop, menuLeft, selectedItem, handleMorePress, closeMenu, setRef } =
+    useMenuPosition();
+  const {
+    renameVisible,
+    renameText,
+    setRenameText,
+    handleShare,
+    handleBulkShare,
+    handleDelete,
+    handleBulkDelete,
+    openRename,
+    closeRename,
+    confirmRename,
+  } = usePdfActions(
+    items,
+    selectedIds,
+    updateItem,
+    removeItem,
+    removeItems,
+    toggleEditMode,
+    clearSelection,
+  );
 
   const onMorePress = (item: { id: string; name: string; uri?: string }) => {
     handleMorePress(item, editMode);
@@ -55,20 +84,20 @@ export default function PdfListScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="skyblue" barStyle="light-content" />
+      <StatusBar backgroundColor='skyblue' barStyle='light-content' />
       <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
       <Text style={styles.title}>PDF 목록</Text>
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <PdfListItem
-            ref={(r) => setRef(item.id, r)}
+            ref={r => setRef(item.id, r)}
             item={item}
             editMode={editMode}
             selected={isSelected(item.id)}
-            onPressItem={(it) => {
+            onPressItem={it => {
               if (!editMode && it.uri) {
                 navigation.navigate('PdfViewer', { uri: it.uri, id: it.id });
               }
@@ -76,8 +105,8 @@ export default function PdfListScreen({ navigation }: Props) {
                 toggleSelect(it.id);
               }
             }}
-            onPressMore={(it) => onMorePress(it)}
-            onToggleSelect={(id) => toggleSelect(id)}
+            onPressMore={it => onMorePress(it)}
+            onToggleSelect={id => toggleSelect(id)}
           />
         )}
       />

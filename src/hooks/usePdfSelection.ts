@@ -5,7 +5,7 @@ export function usePdfSelection(items: Array<{ id: string; name: string; uri?: s
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const toggleEditMode = () => {
-    setEditMode((prev) => {
+    setEditMode(prev => {
       const next = !prev;
       if (!next) {
         setSelectedIds(new Set());
@@ -15,16 +15,16 @@ export function usePdfSelection(items: Array<{ id: string; name: string; uri?: s
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
+    setSelectedIds(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); 
+      if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
   };
 
   const selectAll = () => {
-    setSelectedIds(new Set(items.map((i) => i.id)));
+    setSelectedIds(new Set(items.map(i => i.id)));
   };
 
   const clearSelection = () => {

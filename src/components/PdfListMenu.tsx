@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 type Props = {
   visible: boolean;
@@ -11,7 +18,16 @@ type Props = {
   containerStyle?: ViewStyle;
 };
 
-export default function PdfListMenu({ visible, top, left, onClose, onRename, onDelete, onShare, containerStyle }: Props) {
+export default function PdfListMenu({
+  visible,
+  top,
+  left,
+  onClose,
+  onRename,
+  onDelete,
+  onShare,
+  containerStyle,
+}: Props) {
   if (!visible) return null;
   return (
     <TouchableWithoutFeedback onPress={onClose}>
@@ -68,5 +84,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
-

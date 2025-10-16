@@ -4,5 +4,3 @@ export type RootStackParamList = {
   PdfViewer: { uri: string; id?: string };
   RecentFiles: undefined;
 };
-
-

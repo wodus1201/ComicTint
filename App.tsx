@@ -16,11 +16,19 @@ function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="PdfList" component={PdfListScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="PdfViewer" component={PdfViewerScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="RecentFiles" component={RecentFilesScreen} options={{ headerShown: false }} />
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen name='Home' component={HomeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name='PdfList' component={PdfListScreen} options={{ headerShown: false }} />
+          <Stack.Screen
+            name='PdfViewer'
+            component={PdfViewerScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='RecentFiles'
+            component={RecentFilesScreen}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

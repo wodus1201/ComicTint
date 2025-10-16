@@ -12,7 +12,7 @@ export function useMenuPosition() {
 
   const handleMorePress = (item: PdfItem, editMode: boolean) => {
     if (editMode) return;
-    
+
     const ref = moreBtnRefs.current[item.id];
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
     const MENU_WIDTH = 200;
@@ -21,7 +21,9 @@ export function useMenuPosition() {
     if (!ref || !ref.measureInWindow) {
       setSelectedItem(item);
       setMenuTop(Math.max(8, screenHeight / 2 - MENU_HEIGHT / 2));
-      setMenuLeft(Math.min(Math.max(screenWidth / 2 - MENU_WIDTH / 2, 8), screenWidth - MENU_WIDTH - 8));
+      setMenuLeft(
+        Math.min(Math.max(screenWidth / 2 - MENU_WIDTH / 2, 8), screenWidth - MENU_WIDTH - 8),
+      );
       setMenuVisible(true);
       return;
     }
@@ -34,7 +36,9 @@ export function useMenuPosition() {
 
       const spaceBelow = screenHeight - buttonBottom;
       const showAbove = spaceBelow < MENU_HEIGHT;
-      const top = showAbove ? Math.max(8, buttonTop - MENU_HEIGHT - V_OFFSET) : buttonBottom + V_OFFSET;
+      const top = showAbove
+        ? Math.max(8, buttonTop - MENU_HEIGHT - V_OFFSET)
+        : buttonBottom + V_OFFSET;
 
       let left = buttonRight - MENU_WIDTH;
       left = Math.min(Math.max(left, 8), screenWidth - MENU_WIDTH - 8);

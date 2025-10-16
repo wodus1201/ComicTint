@@ -12,7 +12,7 @@ export function usePdfActions(
   removeItem: (id: string) => void,
   removeItems: (ids: string[]) => void,
   setEditMode: (value: boolean) => void,
-  clearSelection: () => void
+  clearSelection: () => void,
 ) {
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameText, setRenameText] = useState('');
@@ -31,7 +31,7 @@ export function usePdfActions(
       Alert.alert('공유', '선택된 항목이 없습니다.');
       return;
     }
-    const selected = items.filter((i) => selectedIds.has(i.id) && i.uri);
+    const selected = items.filter(i => selectedIds.has(i.id) && i.uri);
     if (selected.length === 0) {
       Alert.alert('공유', '공유할 파일 경로를 찾을 수 없습니다.');
       return;
@@ -39,9 +39,12 @@ export function usePdfActions(
     try {
       const first = selected[0];
       const others = selected.slice(1);
-      const message = others.length > 0
-        ? `${others.length + 1}개 파일 공유:\n- ${stripExtension(first.name)}\n${others.map((o) => `- ${stripExtension(o.name)}`).join('\n')}`
-        : stripExtension(first.name);
+      const message =
+        others.length > 0
+          ? `${others.length + 1}개 파일 공유:\n- ${stripExtension(first.name)}\n${others
+              .map(o => `- ${stripExtension(o.name)}`)
+              .join('\n')}`
+          : stripExtension(first.name);
       await Share.share({ url: first.uri!, message, title: 'PDF 공유' });
     } catch (e) {
       console.warn('bulk share error', e);
@@ -71,8 +74,10 @@ export function usePdfActions(
               console.warn('delete error', error);
               Alert.alert(
                 '삭제 실패',
-                `파일을 삭제하는 중 오류가 발생했습니다.\n\n오류: ${error.message || '알 수 없는 오류'}\n\n파일이 목록에서 제거되었지만 실제 파일은 남아있을 수 있습니다.`,
-                [{ text: '확인' }]
+                `파일을 삭제하는 중 오류가 발생했습니다.\n\n오류: ${
+                  error.message || '알 수 없는 오류'
+                }\n\n파일이 목록에서 제거되었지만 실제 파일은 남아있을 수 있습니다.`,
+                [{ text: '확인' }],
               );
             }
           },
@@ -80,7 +85,7 @@ export function usePdfActions(
         {
           text: '이름 변경',
         },
-      ]
+      ],
     );
   };
 
@@ -115,7 +120,7 @@ export function usePdfActions(
             }
           },
         },
-      ]
+      ],
     );
   };
 

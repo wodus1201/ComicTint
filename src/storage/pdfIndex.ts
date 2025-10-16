@@ -31,28 +31,28 @@ export async function appendPdfIndex(item: StoredPdf): Promise<void> {
 
 export async function removeFromPdfIndex(id: string): Promise<void> {
   const items = await readPdfIndex();
-  const next = items.filter((i) => i.id !== id);
+  const next = items.filter(i => i.id !== id);
   await writePdfIndex(next);
 }
 
 export async function updatePdfIndex(update: Partial<StoredPdf> & { id: string }): Promise<void> {
   const items = await readPdfIndex();
-  const next = items.map((i) => (i.id === update.id ? { ...i, ...update } : i));
+  const next = items.map(i => (i.id === update.id ? { ...i, ...update } : i));
   await writePdfIndex(next);
 }
 
 export async function removePdfWithTransaction(id: string, filePath: string): Promise<void> {
   const items = await readPdfIndex();
-  const itemToDelete = items.find((i) => i.id === id);
-  
+  const itemToDelete = items.find(i => i.id === id);
+
   if (!itemToDelete) {
     throw new Error('PDF 항목을 찾을 수 없습니다');
   }
 
   try {
-    const next = items.filter((i) => i.id !== id);
+    const next = items.filter(i => i.id !== id);
     await writePdfIndex(next);
-    
+
     const { deletePdfFile, deletePdfDirectory } = await import('../utils/fileCopy');
     await deletePdfFile(filePath);
     await deletePdfDirectory(id);
@@ -61,4 +61,3 @@ export async function removePdfWithTransaction(id: string, filePath: string): Pr
     throw error;
   }
 }
-

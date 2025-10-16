@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Pdf from 'react-native-pdf';
 import { ArrowLeftIcon, ArrowRightIcon, RefreshCcwIcon } from 'lucide-react-native';
@@ -20,7 +27,9 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
   useEffect(() => {
     setResolvedUri(uri);
     if (id) {
-      updatePdfIndex({ id, lastOpenedAt: Date.now() }).catch((e) => console.warn('update lastOpenedAt error', e));
+      updatePdfIndex({ id, lastOpenedAt: Date.now() }).catch(e =>
+        console.warn('update lastOpenedAt error', e),
+      );
     }
   }, [uri, id]);
 
@@ -28,8 +37,18 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
     const toValue = controlsVisible ? 0 : 1;
     const toY = controlsVisible ? 30 : 0;
     Animated.parallel([
-      Animated.timing(opacity, { toValue, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: toY, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(opacity, {
+        toValue,
+        duration: 180,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: toY,
+        duration: 180,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
     ]).start();
     setControlsVisible(!controlsVisible);
   };
@@ -44,30 +63,39 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
 
   return (
     <>
-    <Animated.View
-      style={[
-        styles.container,
-        { opacity: opacity, transform: [{ translateY }] },
-      ]}
-      pointerEvents={controlsVisible ? 'auto' : 'none'}
-    >
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <ArrowLeftIcon size={25} color="dimgray" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <ArrowRightIcon size={25} color="dimgray" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.goBack()} hitSlop={8}>
-        <RefreshCcwIcon size={25} color="dimgray" />
-      </TouchableOpacity>
-    </Animated.View>
-    <Pdf
-      source={{ uri: resolvedUri }}
-      style={styles.pdf}
-      onError={(e) => console.warn('pdf error', e)}
-      onLoadComplete={(pages) => console.log('pages:', pages)}
-      onPageSingleTap={() => toggleControls()}
-    />
+      <Animated.View
+        style={[styles.container, { opacity: opacity, transform: [{ translateY }] }]}
+        pointerEvents={controlsVisible ? 'auto' : 'none'}
+      >
+        <TouchableOpacity
+          style={styles.buttonContainer}
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+        >
+          <ArrowLeftIcon size={25} color='dimgray' />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonContainer}
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+        >
+          <ArrowRightIcon size={25} color='dimgray' />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonContainer}
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+        >
+          <RefreshCcwIcon size={25} color='dimgray' />
+        </TouchableOpacity>
+      </Animated.View>
+      <Pdf
+        source={{ uri: resolvedUri }}
+        style={styles.pdf}
+        onError={e => console.warn('pdf error', e)}
+        onLoadComplete={pages => console.log('pages:', pages)}
+        onPageSingleTap={() => toggleControls()}
+      />
     </>
   );
 }
@@ -106,5 +134,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 46,
   },
 });
-
-

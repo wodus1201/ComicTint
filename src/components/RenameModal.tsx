@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 
 type Props = {
   visible: boolean;
@@ -20,7 +27,7 @@ export default function RenameModal({ visible, value, onChangeText, onCancel, on
               style={styles.renameInput}
               value={value}
               onChangeText={onChangeText}
-              placeholder="새 이름"
+              placeholder='새 이름'
               autoFocus
             />
             <View style={styles.renameActions}>
@@ -99,5 +106,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-

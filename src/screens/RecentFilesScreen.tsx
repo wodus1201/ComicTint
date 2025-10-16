@@ -25,12 +25,12 @@ export default function RecentFilesScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="skyblue" barStyle="light-content" />
+      <StatusBar backgroundColor='skyblue' barStyle='light-content' />
       <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
       <Text style={styles.title}>최근 열었던 파일</Text>
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <TouchableOpacity

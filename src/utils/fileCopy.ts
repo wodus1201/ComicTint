@@ -12,8 +12,7 @@ export async function copyContentUriToDocumentDir(params: {
   id: string;
   safeFileName: string;
   contentUri: string;
-}): Promise<{ destPath: string; size: number }>
-{
+}): Promise<{ destPath: string; size: number }> {
   const rel = buildPdfRelativePath(params.id, params.safeFileName);
   const base = RNBlobUtil.fs.dirs.DocumentDir;
   const destPath = base + '/' + rel;

@@ -14,35 +14,30 @@ type Props = {
   onToggleSelect: (id: string) => void;
 };
 
-const PdfListItem = forwardRef<any, Props>(({ item, editMode, selected, onPressItem, onPressMore, onToggleSelect }, ref) => {
-  return (
-    <View style={styles.item}>
-      <TouchableOpacity
-        style={styles.itemContent}
-        onPress={() => onPressItem(item)}
-      >
-        <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
-          {stripExtension(item.name)}
-        </Text>
-      </TouchableOpacity>
-      {editMode ? (
-        <TouchableOpacity style={styles.moreButton} onPress={() => onToggleSelect(item.id)}>
-          <View style={styles.checkOuter}>
-            {selected ? <View style={styles.checkInner} /> : null}
-          </View>
+const PdfListItem = forwardRef<any, Props>(
+  ({ item, editMode, selected, onPressItem, onPressMore, onToggleSelect }, ref) => {
+    return (
+      <View style={styles.item}>
+        <TouchableOpacity style={styles.itemContent} onPress={() => onPressItem(item)}>
+          <Text style={styles.itemText} numberOfLines={1} ellipsizeMode='tail'>
+            {stripExtension(item.name)}
+          </Text>
         </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          style={styles.moreButton}
-          ref={ref}
-          onPress={() => onPressMore(item)}
-        >
-          <MoreHorizontalIcon size={20} color="#666" />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-});
+        {editMode ? (
+          <TouchableOpacity style={styles.moreButton} onPress={() => onToggleSelect(item.id)}>
+            <View style={styles.checkOuter}>
+              {selected ? <View style={styles.checkInner} /> : null}
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.moreButton} ref={ref} onPress={() => onPressMore(item)}>
+            <MoreHorizontalIcon size={20} color='#666' />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  },
+);
 
 PdfListItem.displayName = 'PdfListItem';
 
@@ -84,5 +79,3 @@ const styles = StyleSheet.create({
     backgroundColor: 'skyblue',
   },
 });
-
-

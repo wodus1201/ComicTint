@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+android/app/build/
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+
+# Generated files
+android/app/src/main/java/
+android/app/src/main/res/
+ios/ComicTint/Images.xcassets/
+
+# Metro
+.metro-health-check*
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp

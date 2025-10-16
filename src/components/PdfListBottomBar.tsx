@@ -12,12 +12,25 @@ type Props = {
   onBulkDelete: () => void;
 };
 
-export default function PdfListBottomBar({ editMode, onPick, onOpenRecent, onToggleEdit, onSelectAll, onClearSelection, onBulkShare, onBulkDelete, allSelected }: Props) {
+export default function PdfListBottomBar({
+  editMode,
+  onPick,
+  onOpenRecent,
+  onToggleEdit,
+  onSelectAll,
+  onClearSelection,
+  onBulkShare,
+  onBulkDelete,
+  allSelected,
+}: Props) {
   return (
     <View style={styles.bottomContainer}>
       {editMode ? (
         <>
-          <TouchableOpacity style={styles.button} onPress={allSelected ? onClearSelection : onSelectAll}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={allSelected ? onClearSelection : onSelectAll}
+          >
             <Text style={styles.buttonText}>{allSelected ? '모두 해제' : '모두 선택'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={onBulkShare}>
@@ -65,5 +78,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-
