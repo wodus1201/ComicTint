@@ -4,11 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useEffect, useRef, useState } from 'react';
-import { MoreHorizontalIcon } from 'lucide-react-native';
 import { appendPdfIndex, readPdfIndex, removePdfWithTransaction, updatePdfIndex } from '../storage/pdfIndex';
 import { generateId, toSafeFileName, stripExtension } from '../utils/files';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { StoredPdf } from '../models/pdf';
+import PdfListItem from '../components/PdfListItem';
+import PdfListMenu from '../components/PdfListMenu';
+import RenameModal from '../components/RenameModal';
+import PdfListBottomBar from '../components/PdfListBottomBar';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfList'>;
 
@@ -298,144 +301,59 @@ export default function PdfListScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <TouchableOpacity
-              style={styles.itemContent}
-              onPress={() => {
-                if (!editMode && item.uri) {
-                  navigation.navigate('PdfViewer', { uri: item.uri, id: item.id });
-                }
-                if (editMode) {
-                  toggleSelect(item.id);
-                }
-              }}
-            >
-              <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
-                {stripExtension(item.name)}
-              </Text>
-            </TouchableOpacity>
-            {editMode ? (
-              <TouchableOpacity
-                style={styles.moreButton}
-                onPress={() => toggleSelect(item.id)}
-              >
-                <View style={styles.checkOuter}>
-                  {selectedIds.has(item.id) ? <View style={styles.checkInner} /> : null}
-                </View>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.moreButton}
-                ref={(r) => {
-                  if (r) {
-                    moreBtnRefs.current[item.id] = r;
-                  } else {
-                    delete moreBtnRefs.current[item.id];
-                  }
-                }}
-                onPress={() => handleMorePress(item)}
-              >
-                <MoreHorizontalIcon size={20} color="#666" />
-              </TouchableOpacity>
-            )}
-          </View>
+          <PdfListItem
+            ref={(r) => {
+              if (r) {
+                moreBtnRefs.current[item.id] = r;
+              } else {
+                delete moreBtnRefs.current[item.id];
+              }
+            }}
+            item={item}
+            editMode={editMode}
+            selected={selectedIds.has(item.id)}
+            onPressItem={(it) => {
+              if (!editMode && it.uri) {
+                navigation.navigate('PdfViewer', { uri: it.uri, id: it.id });
+              }
+              if (editMode) {
+                toggleSelect(it.id);
+              }
+            }}
+            onPressMore={(it) => handleMorePress(it)}
+            onToggleSelect={(id) => toggleSelect(id)}
+          />
         )}
       />
-      {editMode ? (
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity style={styles.button} onPress={selectedIds.size === items.length ? clearSelection : selectAll}>
-            <Text style={styles.buttonText}>{selectedIds.size === items.length ? '모두 해제' : '모두 선택'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleBulkShare}>
-            <Text style={styles.buttonText}>공유</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleBulkDelete}>
-            <Text style={styles.buttonText}>삭제</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleEditMode}>
-            <Text style={styles.buttonText}>완료</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity style={styles.button} onPress={handlePick}>
-            <Text style={styles.buttonText}>기기에서 PDF 선택</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RecentFiles')}>
-            <Text style={styles.buttonText}>최근 열었던 파일</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleEditMode}>
-            <Text style={styles.buttonText}>목록 수정</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <PdfListBottomBar
+        editMode={editMode}
+        onPick={handlePick}
+        onOpenRecent={() => navigation.navigate('RecentFiles')}
+        onToggleEdit={toggleEditMode}
+        onSelectAll={selectAll}
+        onClearSelection={clearSelection}
+        onBulkShare={handleBulkShare}
+        onBulkDelete={handleBulkDelete}
+        allSelected={items.length > 0 && selectedIds.size === items.length}
+      />
 
-      {menuVisible && (
-        <TouchableWithoutFeedback onPress={closeMenu}>
-          <View style={styles.fullOverlay}>
-            <View style={[styles.menuContainer, { position: 'absolute', top: menuTop, left: menuLeft }]}>
-              <TouchableOpacity
-                style={styles.menuItem}
-              >
-                <Text style={styles.menuItemText}>파일 정보</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-              >
-                <Text style={styles.menuItemText}>즐겨찾기</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={openRename}
-              >
-                <Text style={styles.menuItemText}>이름 변경</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  if (selectedItem) {
-                    closeMenu();
-                    handleDelete(selectedItem);
-                  }
-                }}
-              >
-                <Text style={styles.menuItemText}>삭제</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleShare(selectedItem!)}
-              >
-                <Text style={styles.menuItemText}>공유</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      )}
+      <PdfListMenu
+        visible={menuVisible}
+        top={menuTop}
+        left={menuLeft}
+        onClose={closeMenu}
+        onRename={openRename}
+        onDelete={() => { if (selectedItem) { closeMenu(); handleDelete(selectedItem); } }}
+        onShare={() => { if (selectedItem) { closeMenu(); handleShare(selectedItem); } }}
+      />
       {renameVisible && (
-        <TouchableWithoutFeedback onPress={closeRename}>
-          <View style={styles.fullOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.renameContainer}>
-                <Text style={styles.renameTitle}>이름 변경</Text>
-                <TextInput
-                  style={styles.renameInput}
-                  value={renameText}
-                  onChangeText={setRenameText}
-                  placeholder="새 이름"
-                  autoFocus
-                />
-                <View style={styles.renameActions}>
-                  <TouchableOpacity style={styles.renameButton} onPress={closeRename}>
-                    <Text style={styles.renameButtonText}>취소</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.renameButtonPrimary} onPress={confirmRename}>
-                    <Text style={styles.renameButtonPrimaryText}>저장</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+        <RenameModal
+          visible={renameVisible}
+          value={renameText}
+          onChangeText={setRenameText}
+          onCancel={closeRename}
+          onConfirm={confirmRename}
+        />
       )}
     </View>
   );
@@ -454,40 +372,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-  },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ccc',
-  },
-  itemContent: {
-    flex: 1,
-    paddingRight: 10,
-    paddingVertical: 20,
-  },
-  itemText: {
-    fontSize: 20,
-    fontWeight: '500',
-  },
-  moreButton: {
-    padding: 5,
-    borderRadius: 20,
-    backgroundColor: 'lightgray',
-  },
-  checkOuter: {
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    borderRadius: '100%',
-  },
-  checkInner: {
-    width: 20,
-    height: 20,
-    borderRadius: '100%',
-    backgroundColor: 'skyblue',
   },
   modalOverlay: {
     position: 'absolute',

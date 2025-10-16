@@ -49,6 +49,6 @@ export function stripExtension(name: string) {
   const trimmed = name.trim();
   if (trimmed.length === 0) return '';
   const lastDot = trimmed.lastIndexOf('.');
-  if (lastDot <= 0) return trimmed; // no dot or hidden files like ".filename"
+  if (lastDot <= 0) return trimmed;
   return trimmed.substring(0, lastDot);
 }

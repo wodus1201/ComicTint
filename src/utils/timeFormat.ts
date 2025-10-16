@@ -2,7 +2,7 @@ export function formatTimeAgo(timestamp: number | undefined): string {
   if (!timestamp) {
     return '아직 열어보지 않음';
   }
-  
+
   const now = Date.now();
   const diffMs = now - timestamp;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
