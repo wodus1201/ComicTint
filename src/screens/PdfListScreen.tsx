@@ -37,8 +37,15 @@ export default function PdfListScreen({ navigation }: Props) {
     uri?: string;
   } | null>(null);
 
-  const { items, handlePick, updateItem, removeItem, removeItems } = usePdfImport(navigation);
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const {
+    items,
+    handlePick,
+    updateItem,
+    removeItem,
+    removeItems,
+    AlertComponent: ImportAlert,
+  } = usePdfImport(navigation);
+  const { toggleFavorite, isFavorite, AlertComponent: FavoritesAlert } = useFavorites();
   const {
     editMode,
     selectedIds,
@@ -62,6 +69,7 @@ export default function PdfListScreen({ navigation }: Props) {
     openRename,
     closeRename,
     confirmRename,
+    AlertComponent: ActionsAlert,
   } = usePdfActions(
     items,
     selectedIds,
@@ -256,6 +264,9 @@ export default function PdfListScreen({ navigation }: Props) {
         file={selectedFileInfo}
         onClose={() => setFileInfoVisible(false)}
       />
+      {ImportAlert}
+      {ActionsAlert}
+      {FavoritesAlert}
     </>
   );
 }

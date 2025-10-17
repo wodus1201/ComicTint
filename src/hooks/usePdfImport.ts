@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { RootStackParamList } from '../navigation/types';
@@ -7,6 +6,7 @@ import { StoredPdf } from '../models/pdf';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
 import { generateId, toSafeFileName } from '../utils/files';
 import { appendPdfIndex, readPdfIndex, removePdfWithTransaction } from '../storage/pdfIndex';
+import { useCustomAlert } from './useCustomAlert';
 
 type PdfItem = {
   id: string;
@@ -23,6 +23,7 @@ export function usePdfImport(
   navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>,
 ) {
   const [items, setItems] = useState<PdfItem[]>([]);
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   useEffect(() => {
     loadPdfItems();
@@ -56,26 +57,32 @@ export function usePdfImport(
       console.log('Using URI:', pickedUri);
       const name = res.name ?? 'imported.pdf';
 
-      Alert.alert('가져오기', `${name} 파일을 어떻게 할까요?`, [
-        {
-          text: '목록에 추가하기',
-          onPress: () => addToLibrary(pickedUri, name),
-        },
-        {
-          text: '미리보기',
-          onPress: () => navigation.navigate('PdfViewer', { uri: pickedUri }),
-        },
-        {
-          text: '취소하기',
-          style: 'cancel',
-        },
-      ]);
+      showAlert({
+        title: '가져오기',
+        message: '해당 파일을 어떻게 할까요?',
+        buttons: [
+          {
+            text: '목록에 추가하기',
+            onPress: () => addToLibrary(pickedUri, name),
+          },
+          {
+            text: '미리보기',
+            onPress: () => navigation.navigate('PdfViewer', { uri: pickedUri }),
+          },
+          {
+            text: '취소하기',
+            style: 'cancel',
+          },
+        ],
+      });
     } catch (e: any) {
       if (DocumentPicker.isCancel(e)) return;
       console.warn('Document pick error', e);
-      Alert.alert('파일 선택 오류', '파일을 선택하는 중 오류가 발생했습니다. 다시 시도해주세요.', [
-        { text: '확인' },
-      ]);
+      showAlert({
+        title: '파일 선택 오류',
+        message: '파일을 선택하는 중 오류가 발생했습니다. 다시 시도해주세요.',
+        buttons: [{ text: '확인' }],
+      });
     }
   };
 
@@ -86,10 +93,10 @@ export function usePdfImport(
   const addToLibrary = async (pickedUri: string, name: string) => {
     try {
       if (checkDuplicateFile(name)) {
-        Alert.alert(
-          '중복 파일 발견',
-          `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
-          [
+        showAlert({
+          title: '중복 파일 발견',
+          message: `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
+          buttons: [
             {
               text: '덮어쓰기',
               onPress: () => replaceExistingFile(pickedUri, name),
@@ -103,23 +110,23 @@ export function usePdfImport(
               style: 'cancel',
             },
           ],
-        );
+        });
         return;
       }
 
       await addNewFile(pickedUri, name);
     } catch (err: any) {
       console.warn('import error', err);
-      Alert.alert(
-        '가져오기 실패',
-        `파일을 가져오는 중 오류가 발생했습니다.\n\n오류: ${
+      showAlert({
+        title: '가져오기 실패',
+        message: `파일을 가져오는 중 오류가 발생했습니다.\n오류: ${
           err.message || '알 수 없는 오류'
-        }\n\n다시 시도하시겠습니까?`,
-        [
+        }\n다시 시도하시겠습니까?`,
+        buttons: [
           { text: '다시 시도', onPress: () => handlePick() },
           { text: '취소', style: 'cancel' },
         ],
-      );
+      });
     }
   };
 
@@ -141,7 +148,11 @@ export function usePdfImport(
     try {
       const existingItem = items.find(item => item.name === name);
       if (!existingItem) {
-        Alert.alert('오류', '기존 파일을 찾을 수 없습니다.');
+        showAlert({
+          title: '오류',
+          message: '기존 파일을 찾을 수 없습니다.',
+          buttons: [{ text: '확인' }],
+        });
         return;
       }
 
@@ -169,10 +180,18 @@ export function usePdfImport(
         ),
       );
 
-      Alert.alert('성공', '파일이 성공적으로 교체되었습니다.');
+      showAlert({
+        title: '성공',
+        message: '파일이 성공적으로 교체되었습니다.',
+        buttons: [{ text: '확인' }],
+      });
     } catch (err: any) {
       console.warn('replace error', err);
-      Alert.alert('교체 실패', '파일 교체 중 오류가 발생했습니다.');
+      showAlert({
+        title: '교체 실패',
+        message: '파일 교체 중 오류가 발생했습니다.',
+        buttons: [{ text: '확인' }],
+      });
     }
   };
 
@@ -190,7 +209,11 @@ export function usePdfImport(
       await addNewFile(pickedUri, newName);
     } catch (err: any) {
       console.warn('add with new name error', err);
-      Alert.alert('저장 실패', '새 이름으로 저장하는 중 오류가 발생했습니다.');
+      showAlert({
+        title: '저장 실패',
+        message: '새 이름으로 저장하는 중 오류가 발생했습니다.',
+        buttons: [{ text: '확인' }],
+      });
     }
   };
 
@@ -213,5 +236,6 @@ export function usePdfImport(
     removeItem,
     removeItems,
     loadPdfItems,
+    AlertComponent,
   };
 }

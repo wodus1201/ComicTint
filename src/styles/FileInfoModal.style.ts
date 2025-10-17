@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
   title: {
     color: '#333',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   content: {
     gap: 10,
@@ -41,18 +41,18 @@ export const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   label: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: '#666',
   },
   value: {
     flex: 2,
     textAlign: 'right',
-    fontSize: 14,
+    fontSize: 15,
     color: '#333',
   },
 });

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
 import { StoredPdf } from '../models/pdf';
 import { readPdfIndex, updatePdfIndex } from '../storage/pdfIndex';
+import { useCustomAlert } from './useCustomAlert';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<StoredPdf[]>([]);
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   useEffect(() => {
     loadFavorites();
@@ -49,7 +50,11 @@ export function useFavorites() {
       }
     } catch (error) {
       console.warn('Failed to toggle favorite:', error);
-      Alert.alert('오류', '즐겨찾기 상태를 변경하는 중 오류가 발생했습니다.');
+      showAlert({
+        title: '오류',
+        message: '즐겨찾기 상태를 변경하는 중 오류가 발생했습니다.',
+        buttons: [{ text: '확인' }],
+      });
     }
   };
 
@@ -68,5 +73,6 @@ export function useFavorites() {
     isFavorite,
     getFavoriteOrder,
     loadFavorites,
+    AlertComponent,
   };
 }

@@ -41,9 +41,6 @@ export default function FileInfoModal({ visible, file, onClose }: Props) {
           <View style={styles.popover}>
             <View style={styles.header}>
               <Text style={styles.title}>파일 정보</Text>
-              <TouchableOpacity onPress={onClose}>
-                <XIcon size={24} color='#666' />
-              </TouchableOpacity>
             </View>
 
             <View style={styles.content}>
