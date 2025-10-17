@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Cafe24Lovingu.ttf",
+      "sha1": "35a6af093a6e44873d744b4faf6ebd85b4df5df5"
+    },
+    {
+      "path": "assets/fonts/VITRO CORE TTF.ttf",
+      "sha1": "4fe67a023c60762c974011a96cb19e7e37b511df"
+    },
+    {
+      "path": "assets/fonts/VITRO INSPIRE TTF.ttf",
+      "sha1": "4bd34182c10c021c9c823588574e36ea6d12ad5a"
+    },
+    {
+      "path": "assets/fonts/VITRO PRIDE TTF.ttf",
+      "sha1": "c97967e16f8c6bf943f58327437cad47917b6bfe"
+    }
+  ]
+}
