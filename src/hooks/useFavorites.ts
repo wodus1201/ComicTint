@@ -5,7 +5,7 @@ import { useCustomAlert } from './useCustomAlert';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<StoredPdf[]>([]);
-  const { showAlert, AlertComponent } = useCustomAlert();
+  const { showAlert, AlertComponent } = useCustomAlert('useFavorites');
 
   useEffect(() => {
     loadFavorites();

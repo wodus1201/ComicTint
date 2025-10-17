@@ -29,9 +29,17 @@ type Props = {
   message?: string;
   buttons?: AlertButton[];
   onClose: () => void;
+  hookId?: string;
 };
 
-export default function CustomAlert({ visible, title, message, buttons = [], onClose }: Props) {
+export default function CustomAlert({
+  visible,
+  title,
+  message,
+  buttons = [],
+  onClose,
+  hookId,
+}: Props) {
   const { width, height } = Dimensions.get('screen');
 
   const handleButtonPress = (button: AlertButton) => {

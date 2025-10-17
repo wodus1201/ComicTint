@@ -133,7 +133,6 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
         source={{ uri: resolvedUri }}
         style={styles.pdf}
         onError={e => console.warn('pdf error', e)}
-        onLoadComplete={pages => console.log('pages:', pages)}
         onPageSingleTap={() => toggleControls()}
       />
     </>

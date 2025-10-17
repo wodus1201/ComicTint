@@ -23,7 +23,7 @@ export function usePdfImport(
   navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>,
 ) {
   const [items, setItems] = useState<PdfItem[]>([]);
-  const { showAlert, AlertComponent } = useCustomAlert();
+  const { showAlert, AlertComponent } = useCustomAlert('usePdfImport');
 
   useEffect(() => {
     loadPdfItems();
@@ -31,30 +31,25 @@ export function usePdfImport(
 
   const loadPdfItems = async () => {
     const stored = await readPdfIndex();
-    setItems(
-      stored.map(s => ({
-        id: s.id,
-        name: s.name,
-        uri: s.path,
-        size: s.size,
-        createdAt: s.createdAt,
-        lastOpenedAt: s.lastOpenedAt,
-        isFavorite: s.isFavorite,
-        favoriteOrder: s.favoriteOrder,
-      })),
-    );
+
+    const mappedItems = stored.map(s => ({
+      id: s.id,
+      name: s.name,
+      uri: s.path,
+      size: s.size,
+      createdAt: s.createdAt,
+      lastOpenedAt: s.lastOpenedAt,
+      isFavorite: s.isFavorite,
+      favoriteOrder: s.favoriteOrder,
+    }));
+
+    setItems(mappedItems);
   };
 
   const handlePick = async () => {
     try {
       const res = await DocumentPicker.pickSingle({ type: types.pdf });
       const pickedUri = res.uri;
-      console.log('DocumentPicker result:', {
-        uri: res.uri,
-        fileCopyUri: res.fileCopyUri,
-        name: res.name,
-      });
-      console.log('Using URI:', pickedUri);
       const name = res.name ?? 'imported.pdf';
 
       showAlert({
@@ -87,30 +82,40 @@ export function usePdfImport(
   };
 
   const checkDuplicateFile = (fileName: string): boolean => {
-    return items.some(item => item.name === fileName);
+    const normalizedFileName = fileName.trim().toLowerCase();
+
+    const hasDuplicate = items.some(item => {
+      const normalizedItemName = item.name.trim().toLowerCase();
+      const isMatch = normalizedItemName === normalizedFileName;
+      return isMatch;
+    });
+
+    return hasDuplicate;
   };
 
   const addToLibrary = async (pickedUri: string, name: string) => {
     try {
       if (checkDuplicateFile(name)) {
-        showAlert({
-          title: '중복 파일 발견',
-          message: `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
-          buttons: [
-            {
-              text: '덮어쓰기',
-              onPress: () => replaceExistingFile(pickedUri, name),
-            },
-            {
-              text: '새 이름으로 저장',
-              onPress: () => addWithNewName(pickedUri, name),
-            },
-            {
-              text: '취소',
-              style: 'cancel',
-            },
-          ],
-        });
+        setTimeout(() => {
+          showAlert({
+            title: '중복 파일 발견',
+            message: `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
+            buttons: [
+              {
+                text: '덮어쓰기',
+                onPress: () => replaceExistingFile(pickedUri, name),
+              },
+              {
+                text: '새 이름으로 저장',
+                onPress: () => addWithNewName(pickedUri, name),
+              },
+              {
+                text: '취소',
+                style: 'cancel',
+              },
+            ],
+          });
+        }, 100);
         return;
       }
 

@@ -17,7 +17,7 @@ export function usePdfActions(
 ) {
   const [renameVisible, setRenameVisible] = useState(false);
   const [renameText, setRenameText] = useState('');
-  const { showAlert, AlertComponent } = useCustomAlert();
+  const { showAlert, AlertComponent } = useCustomAlert('usePdfActions');
 
   const handleShare = async (item: PdfItem) => {
     if (!item.uri) {
