@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DocumentPicker, { types } from 'react-native-document-picker';
+import RNBlobUtil from 'react-native-blob-util';
 import { RootStackParamList } from '../navigation/types';
 import { StoredPdf } from '../models/pdf';
 import { copyContentUriToDocumentDir } from '../utils/fileCopy';
@@ -58,7 +59,7 @@ export function usePdfImport(
         buttons: [
           {
             text: '목록에 추가하기',
-            onPress: () => addToLibrary(pickedUri, name),
+            onPress: () => addToLibrary(pickedUri, name, res.size || undefined),
           },
           {
             text: '미리보기',
@@ -81,25 +82,92 @@ export function usePdfImport(
     }
   };
 
-  const checkDuplicateFile = (fileName: string): boolean => {
+  const getFileSize = async (uri: string): Promise<number | undefined> => {
+    try {
+      if (!uri.startsWith('content://')) {
+        const stat = await RNBlobUtil.fs.stat(uri);
+        return Number(stat.size || 0);
+      }
+
+      try {
+        const stat = await RNBlobUtil.fs.stat(uri);
+        return Number(stat.size || 0);
+      } catch {
+        try {
+          const tempPath = `${RNBlobUtil.fs.dirs.CacheDir}/temp_size_check.pdf`;
+          await RNBlobUtil.fs.cp(uri, tempPath);
+          const tempStat = await RNBlobUtil.fs.stat(tempPath);
+          const size = Number(tempStat.size || 0);
+          await RNBlobUtil.fs.unlink(tempPath).catch(() => {});
+          return size;
+        } catch (copyError) {
+          return undefined;
+        }
+      }
+    } catch (error) {
+      return undefined;
+    }
+  };
+
+  const checkDuplicateFile = async (
+    fileName: string,
+    fileSize?: number,
+  ): Promise<{ isDuplicate: boolean; reason: 'name' | 'size' | 'none' }> => {
     const normalizedFileName = fileName.trim().toLowerCase();
 
-    const hasDuplicate = items.some(item => {
+    const nameDuplicate = items.some(item => {
       const normalizedItemName = item.name.trim().toLowerCase();
       const isMatch = normalizedItemName === normalizedFileName;
       return isMatch;
     });
 
-    return hasDuplicate;
+    if (nameDuplicate) {
+      return { isDuplicate: true, reason: 'name' };
+    }
+
+    if (fileSize !== undefined) {
+      const sizeDuplicate = items.some(item => {
+        const isMatch = item.size === fileSize;
+        return isMatch;
+      });
+
+      if (sizeDuplicate) {
+        return { isDuplicate: true, reason: 'size' };
+      }
+    }
+
+    return { isDuplicate: false, reason: 'none' };
   };
 
-  const addToLibrary = async (pickedUri: string, name: string) => {
+  const addToLibrary = async (pickedUri: string, name: string, documentSize?: number) => {
     try {
-      if (checkDuplicateFile(name)) {
+      let fileSize: number | undefined = documentSize;
+
+      if (fileSize === undefined) {
+        try {
+          fileSize = await getFileSize(pickedUri);
+        } catch (sizeError) {
+          console.warn('파일 크기 가져오기 실패, 이름만으로 중복 검사:', sizeError);
+          fileSize = undefined;
+        }
+      }
+
+      const duplicateResult = await checkDuplicateFile(name, fileSize);
+
+      if (duplicateResult.isDuplicate) {
         setTimeout(() => {
+          const sizeText = fileSize ? ` (크기: ${Math.round(fileSize / 1024)}KB)` : '';
+          let message = '';
+
+          if (duplicateResult.reason === 'name') {
+            message = `같은 이름의 파일이 이미 목록에 있습니다.\n어떻게 하시겠습니까?`;
+          } else if (duplicateResult.reason === 'size') {
+            message = `같은 크기의 파일이 이미 목록에 있습니다.\n어떻게 하시겠습니까?`;
+          }
+
           showAlert({
             title: '중복 파일 발견',
-            message: `"${name}" 파일이 이미 목록에 있습니다. 어떻게 하시겠습니까?`,
+            message,
             buttons: [
               {
                 text: '덮어쓰기',
@@ -107,7 +175,7 @@ export function usePdfImport(
               },
               {
                 text: '새 이름으로 저장',
-                onPress: () => addWithNewName(pickedUri, name),
+                onPress: () => addWithNewName(pickedUri, name, documentSize),
               },
               {
                 text: '취소',
@@ -200,12 +268,28 @@ export function usePdfImport(
     }
   };
 
-  const addWithNewName = async (pickedUri: string, originalName: string) => {
+  const addWithNewName = async (pickedUri: string, originalName: string, documentSize?: number) => {
     try {
+      let fileSize: number | undefined = documentSize;
+
+      if (fileSize === undefined) {
+        try {
+          fileSize = await getFileSize(pickedUri);
+        } catch (sizeError) {
+          console.warn('파일 크기 가져오기 실패, 이름만으로 중복 검사:', sizeError);
+          fileSize = undefined;
+        }
+      }
+
       let newName = originalName;
       let counter = 1;
 
-      while (checkDuplicateFile(newName)) {
+      while (true) {
+        const duplicateResult = await checkDuplicateFile(newName, fileSize);
+        if (!duplicateResult.isDuplicate) {
+          break;
+        }
+
         const nameWithoutExt = originalName.replace(/\.pdf$/i, '');
         newName = `${nameWithoutExt} (${counter}).pdf`;
         counter++;

@@ -81,7 +81,7 @@ export function usePdfActions(
 
     showAlert({
       title: '파일 삭제',
-      message: '해당 파일을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+      message: `해당 파일을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
       buttons: [
         {
           text: '취소',
