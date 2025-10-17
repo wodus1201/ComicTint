@@ -11,15 +11,13 @@ export const styles = StyleSheet.create({
   },
   title: {
     margin: 0,
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: 'dimgray',
+    color: 'white',
   },
   subtitle: {
     marginBottom: 20,
     fontSize: 20,
     fontWeight: '600',
-    color: 'dimgray',
+    color: 'white',
   },
   startButton: {
     marginBottom: 10,
@@ -29,18 +27,7 @@ export const styles = StyleSheet.create({
     borderRadius: 30,
   },
   startButtonText: {
-    fontWeight: '600',
-    color: 'white',
-  },
-  themeButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    padding: 15,
-    backgroundColor: 'dimgray',
-    borderRadius: 30,
-  },
-  themeButtonText: {
+    fontSize: 20,
     fontWeight: '600',
     color: 'white',
   },
