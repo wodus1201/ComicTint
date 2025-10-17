@@ -45,7 +45,7 @@ export default function RenameModal({ visible, value, onChangeText, onCancel, on
                   <Text style={styles.renameButtonText}>취소</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.renameButton} onPress={onConfirm}>
-                  <Text style={[styles.renameButtonText, { color: 'skyblue' }]}>저장</Text>
+                  <Text style={[styles.renameButtonText, { color: '#2ac92a' }]}>저장</Text>
                 </TouchableOpacity>
               </View>
             </View>

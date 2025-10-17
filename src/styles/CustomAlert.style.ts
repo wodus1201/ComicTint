@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
     gap: 20,
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: 'dimgray',
   },

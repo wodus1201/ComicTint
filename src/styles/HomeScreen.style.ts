@@ -23,8 +23,10 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 40,
     paddingVertical: 15,
-    backgroundColor: 'skyblue',
     borderRadius: 30,
+    borderWidth: 2,
+    borderColor: 'white',
+    backgroundColor: 'transparent',
   },
   startButtonText: {
     fontSize: 20,

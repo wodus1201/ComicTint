@@ -22,6 +22,7 @@ export const styles = StyleSheet.create({
   },
   pinIcon: {
     marginLeft: 8,
+    marginTop: 4,
   },
   moreButton: {
     borderRadius: 20,

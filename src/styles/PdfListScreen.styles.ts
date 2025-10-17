@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   title: {
     color: 'white',
@@ -15,7 +16,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    backgroundColor: 'skyblue',
+    backgroundColor: 'darkgray',
   },
   sortButtonContainer: {
     paddingVertical: 5,
@@ -87,6 +88,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '500',
+    color: 'dimgray',
   },
   renameContainer: {
     width: '80%',
@@ -127,17 +129,6 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  renameButtonPrimary: {
-    paddingHorizontal: 20,
-    paddingVertical: 7,
-    backgroundColor: 'skyblue',
-    borderRadius: 12,
-  },
-  renameButtonPrimaryText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-  },
   button: {
     paddingVertical: 15,
     paddingHorizontal: 15,
@@ -147,11 +138,5 @@ export const styles = StyleSheet.create({
   buttonText: {
     fontWeight: '600',
     color: 'white',
-  },
-  bottomContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 35,
-    backgroundColor: 'skyblue',
   },
 });

@@ -26,5 +26,6 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
+    color: 'dimgray',
   },
 });

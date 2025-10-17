@@ -44,12 +44,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: 'dimgray',
   },
   value: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
     color: 'dimgray',
   },

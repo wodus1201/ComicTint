@@ -4,16 +4,16 @@ export const styles = StyleSheet.create({
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingHorizontal: 35,
-    backgroundColor: 'skyblue',
+    backgroundColor: 'darkgray',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    paddingVertical: 18,
+    width: 130,
   },
   buttonText: {
+    fontSize: 18,
     fontWeight: '600',
     color: 'white',
   },

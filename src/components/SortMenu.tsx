@@ -26,7 +26,10 @@ export default function SortMenu({ visible, onClose, top, left, currentOrder, on
             }}
           >
             <Text
-              style={[styles.menuItemText, currentOrder === 'addedDesc' && { color: 'skyblue' }]}
+              style={[
+                styles.menuItemText,
+                currentOrder === 'addedDesc' && { color: 'black', fontWeight: '600' },
+              ]}
             >
               추가순
             </Text>
@@ -40,7 +43,10 @@ export default function SortMenu({ visible, onClose, top, left, currentOrder, on
             }}
           >
             <Text
-              style={[styles.menuItemText, currentOrder === 'sizeDesc' && { color: 'skyblue' }]}
+              style={[
+                styles.menuItemText,
+                currentOrder === 'sizeDesc' && { color: 'black', fontWeight: '600' },
+              ]}
             >
               크기순
             </Text>
@@ -53,7 +59,12 @@ export default function SortMenu({ visible, onClose, top, left, currentOrder, on
               onSelect('nameAsc');
             }}
           >
-            <Text style={[styles.menuItemText, currentOrder === 'nameAsc' && { color: 'skyblue' }]}>
+            <Text
+              style={[
+                styles.menuItemText,
+                currentOrder === 'nameAsc' && { color: 'black', fontWeight: '600' },
+              ]}
+            >
               이름순
             </Text>
           </TouchableOpacity>
@@ -68,7 +79,7 @@ export default function SortMenu({ visible, onClose, top, left, currentOrder, on
             <Text
               style={[
                 styles.menuItemText,
-                currentOrder === 'recentOpenedDesc' && { color: 'skyblue' },
+                currentOrder === 'recentOpenedDesc' && { color: 'black', fontWeight: '600' },
               ]}
             >
               열어본순

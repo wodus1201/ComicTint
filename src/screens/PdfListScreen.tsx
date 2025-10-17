@@ -176,8 +176,8 @@ export default function PdfListScreen({ navigation }: Props) {
   return (
     <>
       <View style={styles.container}>
-        <StatusBar backgroundColor='skyblue' barStyle='light-content' />
-        <View style={{ height: safeAreaInsets.top, backgroundColor: 'skyblue' }} />
+        <StatusBar backgroundColor='darkgray' barStyle='light-content' />
+        <View style={{ height: safeAreaInsets.top, backgroundColor: 'darkgray' }} />
         <SortHeader
           title={'PDF 목록'}
           onOpenSortMenu={({ x, y, width, height }) => {

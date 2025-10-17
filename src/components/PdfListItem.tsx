@@ -28,13 +28,13 @@ const PdfListItem = forwardRef<any, Props>(
             <Text style={styles.itemText} numberOfLines={1} ellipsizeMode='tail'>
               {stripExtension(item.name)}
             </Text>
-            {isFavorite && <PinIcon size={16} color='skyblue' style={styles.pinIcon} />}
+            {isFavorite && <PinIcon size={20} color='lightcoral' style={styles.pinIcon} />}
           </View>
         </TouchableOpacity>
         {editMode ? (
           <TouchableOpacity style={styles.moreButton} onPress={() => onToggleSelect(item.id)}>
             <View
-              style={[styles.checkOuter, { backgroundColor: selected ? 'skyblue' : 'white' }]}
+              style={[styles.checkOuter, { backgroundColor: selected ? 'darkgray' : 'white' }]}
             ></View>
           </TouchableOpacity>
         ) : (

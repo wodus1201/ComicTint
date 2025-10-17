@@ -3,9 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   title: {
-    backgroundColor: 'skyblue',
+    backgroundColor: 'darkgray',
     paddingVertical: 10,
     paddingHorizontal: 20,
     fontSize: 30,
@@ -33,22 +34,23 @@ export const styles = StyleSheet.create({
   },
   timeText: {
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 100,
-  },
-  buttonText: {
-    fontWeight: '600',
-    color: 'white',
   },
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: 'skyblue',
+    backgroundColor: 'darkgray',
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    width: '100%',
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: 'white',
   },
 });

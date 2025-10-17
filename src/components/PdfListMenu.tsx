@@ -48,7 +48,7 @@ export default function PdfListMenu({
             <View
               style={[
                 styles.menuContainer,
-                { position: 'absolute', top: top - 23, left },
+                { position: 'absolute', top: top - 30, left },
                 containerStyle,
               ]}
             >

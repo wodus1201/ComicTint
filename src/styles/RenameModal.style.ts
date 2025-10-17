@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
   renameInput: {
     paddingHorizontal: 12,
     paddingVertical: 7,
-    fontSize: 15,
+    fontSize: 16,
     borderWidth: 1,
     borderColor: 'lightgray',
     borderRadius: 12,
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   renameButtonText: {
-    fontSize: 15,
+    fontSize: 16,
     color: 'dimgray',
     fontWeight: '600',
   },
