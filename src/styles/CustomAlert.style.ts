@@ -40,11 +40,11 @@ export const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 13,
+    gap: 20,
   },
   buttonText: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
     color: 'dimgray',
   },
 });

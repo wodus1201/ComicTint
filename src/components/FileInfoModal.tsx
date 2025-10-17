@@ -1,15 +1,5 @@
-import React from 'react';
-import {
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  Modal,
-  StatusBar,
-  Dimensions,
-} from 'react-native';
+import { Text, TouchableWithoutFeedback, View, Modal, StatusBar, Dimensions } from 'react-native';
 import { styles } from '../styles/FileInfoModal.style';
-import { XIcon } from 'lucide-react-native';
 import { StoredPdf } from '../models/pdf';
 import { formatFileSize, formatDate } from '../utils/timeFormat';
 

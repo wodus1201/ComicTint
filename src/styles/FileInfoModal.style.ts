@@ -1,4 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -14,15 +17,12 @@ export const styles = StyleSheet.create({
     bottom: 0,
   },
   popover: {
-    width: '80%',
-    padding: 20,
+    minWidth: width * 0.8,
+    maxWidth: width * 0.9,
+    padding: 25,
     backgroundColor: 'white',
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
+    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -44,15 +44,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#666',
+    color: 'dimgray',
   },
   value: {
-    flex: 2,
-    textAlign: 'right',
     fontSize: 15,
-    color: '#333',
+    fontWeight: '500',
+    color: 'dimgray',
   },
 });

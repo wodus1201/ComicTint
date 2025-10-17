@@ -41,14 +41,14 @@ export const styles = StyleSheet.create({
     marginTop: 15,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    gap: 20,
   },
   renameButton: {
     marginRight: 8,
   },
   renameButtonText: {
     fontSize: 15,
-    color: '#333',
+    color: 'dimgray',
     fontWeight: '600',
   },
 });
