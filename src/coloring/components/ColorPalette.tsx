@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
 import { useColoringStore } from '../stores/coloringStore';
 
@@ -43,14 +43,22 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ onColorSelect }) => 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>색상 팔레트</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContainer}
+      >
         <View style={styles.colorGrid}>
           {allColors.map((color, index) => {
             const isSelected = brush.color === color;
             return (
               <TouchableOpacity
                 key={`${color}-${index}`}
-                style={[styles.colorButton, { backgroundColor: color }, isSelected && styles.selectedColorButton]}
+                style={[
+                  styles.colorButton,
+                  { backgroundColor: color },
+                  isSelected && styles.selectedColorButton,
+                ]}
                 onPress={() => handleColorSelect(color)}
               >
                 {isSelected && (

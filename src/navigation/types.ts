@@ -3,4 +3,5 @@ export type RootStackParamList = {
   PdfList: undefined;
   PdfViewer: { uri: string; id?: string; name?: string };
   RecentFiles: undefined;
+  Coloring: { pdfUri: string; pdfId: string; pageNumber: number };
 };

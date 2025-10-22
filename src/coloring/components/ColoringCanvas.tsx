@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { View } from 'react-native';
 import Svg, { Path, Defs, ClipPath, Rect } from 'react-native-svg';
 import { useColoringStore } from '../stores/coloringStore';
@@ -11,7 +11,8 @@ interface ColoringCanvasProps {
 }
 
 export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, pdfImageUri }) => {
-  const { canvas, layers, setCanvasSize, startDrawing, continueDrawing, endDrawing } = useColoringStore();
+  const { canvas, layers, setCanvasSize, startDrawing, continueDrawing, endDrawing } =
+    useColoringStore();
 
   const svgRef = useRef<Svg>(null);
 

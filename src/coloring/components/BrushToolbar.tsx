@@ -1,6 +1,5 @@
-import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { PenIcon, BrushIcon, EraserIcon, BucketIcon } from 'lucide-react-native';
+import { PenIcon, BrushIcon, EraserIcon, PaintBucketIcon } from 'lucide-react-native';
 import { useColoringStore } from '../stores/coloringStore';
 import { BrushType } from '../models/coloring';
 
@@ -15,7 +14,7 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
     { type: 'pen', icon: PenIcon, label: '펜' },
     { type: 'brush', icon: BrushIcon, label: '브러시' },
     { type: 'eraser', icon: EraserIcon, label: '지우개' },
-    { type: 'bucket', icon: BucketIcon, label: '버킷' },
+    { type: 'bucket', icon: PaintBucketIcon, label: '버킷' },
   ];
 
   const handleToolSelect = (type: BrushType) => {

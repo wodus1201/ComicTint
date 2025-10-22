@@ -1,18 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { styles } from '../styles/PdfViewerScreen.style';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Pdf from 'react-native-pdf';
-import { ArrowLeftIcon, ArrowRightIcon, RefreshCcwIcon } from 'lucide-react-native';
+import { ArrowLeftIcon, PaletteIcon, ShareIcon } from 'lucide-react-native';
 import { RootStackParamList } from '../navigation/types';
 import { updatePdfIndex } from '../storage/pdfIndex';
 import { stripExtension } from '../utils/files';
+import Pdf from 'react-native-pdf';
+import { useCustomAlert } from '../hooks/useCustomAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PdfViewer'>;
+type PdfItem = { id: string; name: string; uri?: string };
 
 export default function PdfViewerScreen({ route, navigation }: Props) {
   const { uri, id, name } = route.params;
-
+  const { showAlert } = useCustomAlert('PdfViewerScreen');
   const [resolvedUri, setResolvedUri] = useState<string | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
 
@@ -28,6 +38,18 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
       );
     }
   }, [uri, id]);
+
+  const handleShare = async (item: PdfItem) => {
+    if (!item.uri) {
+      showAlert({
+        title: '공유',
+        message: '공유할 파일 경로를 찾을 수 없습니다.',
+        buttons: [{ text: '확인' }],
+      });
+      return;
+    }
+    await Share.share({ url: item.uri!, message: item.name, title: 'PDF 공유' });
+  };
 
   const toggleControls = () => {
     const toValue = controlsVisible ? 0 : 1;
@@ -108,10 +130,18 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
               borderBottomRightRadius: 5,
             },
           ]}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            if (id) {
+              navigation.navigate('Coloring', {
+                pdfUri: uri,
+                pdfId: id,
+                pageNumber: 1,
+              });
+            }
+          }}
           hitSlop={8}
         >
-          <ArrowRightIcon size={25} color='dimgray' />
+          <PaletteIcon size={25} color='dimgray' />
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -123,10 +153,10 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
               borderBottomRightRadius: 30,
             },
           ]}
-          onPress={() => navigation.goBack()}
+          onPress={() => handleShare({ id: id || '', name: name || '', uri: uri || '' })}
           hitSlop={8}
         >
-          <RefreshCcwIcon size={25} color='dimgray' />
+          <ShareIcon size={25} color='dimgray' />
         </TouchableOpacity>
       </Animated.View>
       <Pdf
