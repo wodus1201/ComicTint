@@ -27,7 +27,7 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
         style={[styles.layerRow, isActive && styles.activeLayerRow]}
       >
         <View style={styles.layerInfo}>
-          <LayersIcon size={16} color={isActive ? '#007AFF' : '#666666'} />
+          <LayersIcon size={16} color={isActive ? 'dimgray' : 'white'} />
           <Text numberOfLines={1} style={[styles.layerName, isActive && styles.activeLayerName]}>
             {item.name}
           </Text>
@@ -39,9 +39,9 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
             style={styles.iconButton}
           >
             {item.visible ? (
-              <EyeIcon size={18} color={'#444444'} />
+              <EyeIcon size={18} color={isActive ? 'dimgray' : 'white'} />
             ) : (
-              <EyeOffIcon size={18} color={'#999999'} />
+              <EyeOffIcon size={18} color={isActive ? 'dimgray' : 'white'} />
             )}
           </TouchableOpacity>
 
@@ -50,7 +50,7 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
             style={styles.iconButton}
             disabled={index === 0}
           >
-            <ChevronUpIcon size={18} color={index === 0 ? '#cccccc' : '#444444'} />
+            <ChevronUpIcon size={18} color={isActive ? 'dimgray' : 'white'} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -58,14 +58,11 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
             style={styles.iconButton}
             disabled={index === layers.items.length - 1}
           >
-            <ChevronDownIcon
-              size={18}
-              color={index === layers.items.length - 1 ? '#cccccc' : '#444444'}
-            />
+            <ChevronDownIcon size={18} color={isActive ? 'dimgray' : 'white'} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => deleteLayer(item.id)} style={styles.iconButton}>
-            <Trash2Icon size={18} color={'#C0392B'} />
+            <Trash2Icon size={18} color={isActive ? 'dimgray' : 'white'} />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -81,8 +78,7 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
           style={styles.addButton}
           accessibilityLabel='add-layer'
         >
-          <PlusIcon size={16} color={'#ffffff'} />
-          <Text style={styles.addButtonText}>추가</Text>
+          <PlusIcon size={16} color={'dimgray'} />
         </TouchableOpacity>
       </View>
 
@@ -90,7 +86,6 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
         data={layers.items}
         keyExtractor={item => item.id}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
         contentContainerStyle={styles.listContent}
         style={{ flexGrow: 0 }}
       />
@@ -100,47 +95,33 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f8f9fa',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    backgroundColor: 'dimgray',
   },
   compact: {
-    paddingVertical: 8,
     paddingHorizontal: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
   },
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: 'white',
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: 'white',
     paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
   },
-  addButtonText: {
-    color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
   listContent: {
-    paddingBottom: 4,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#e9ecef',
+    paddingBottom: 10,
   },
   layerRow: {
     flexDirection: 'row',
@@ -148,10 +129,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    marginHorizontal: 6,
+    borderRadius: 10,
   },
   activeLayerRow: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: 'lightgray',
   },
   layerInfo: {
     flexDirection: 'row',
@@ -159,13 +141,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   layerName: {
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 14,
-    color: '#444444',
+    fontWeight: '500',
+    color: 'white',
   },
   activeLayerName: {
-    color: '#007AFF',
-    fontWeight: '600',
+    color: 'dimgray',
   },
   actions: {
     flexDirection: 'row',

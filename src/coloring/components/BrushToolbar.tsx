@@ -1,14 +1,54 @@
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, PanResponder, Animated } from 'react-native';
 import { PenIcon, BrushIcon, EraserIcon, PaintBucketIcon } from 'lucide-react-native';
 import { useColoringStore } from '../stores/coloringStore';
 import { BrushType } from '../models/coloring';
+import { useState, useRef } from 'react';
 
 interface BrushToolbarProps {
   onBrushSettingsPress?: () => void;
 }
 
 export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress }) => {
-  const { brush, ui, setBrushType, setSelectedTool, toggleBrushSettings } = useColoringStore();
+  const { brush, ui, setBrushType, setSelectedTool, toggleBrushSettings, setBrushSize } =
+    useColoringStore();
+  const [isSliderActive, setIsSliderActive] = useState(false);
+  const sliderWidth = 200;
+  const sliderHeight = 40;
+  const thumbSize = 20;
+
+  const pan = useRef(new Animated.ValueXY()).current;
+
+  const initialX = ((brush.size - 1) / 49) * (sliderWidth - thumbSize);
+  pan.setValue({ x: initialX, y: 0 });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        setIsSliderActive(true);
+        pan.setOffset({
+          x: (pan.x as any)._value,
+          y: (pan.y as any)._value,
+        });
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        const newX = Math.max(
+          0,
+          Math.min(sliderWidth - thumbSize, gestureState.moveX - gestureState.x0),
+        );
+        pan.setValue({ x: newX, y: 0 });
+
+        const progress = newX / (sliderWidth - thumbSize);
+        const newSize = Math.round(1 + progress * 49);
+        setBrushSize(newSize);
+      },
+      onPanResponderRelease: () => {
+        setIsSliderActive(false);
+        pan.flattenOffset();
+      },
+    }),
+  ).current;
 
   const tools: { type: BrushType; icon: React.ComponentType<any>; label: string }[] = [
     { type: 'pen', icon: PenIcon, label: '펜' },
@@ -29,6 +69,47 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
 
   return (
     <View style={styles.container}>
+      <View style={styles.settingsContainer}>
+        {isSliderActive && (
+          <View style={styles.sizeDisplay}>
+            <Text style={styles.sizeText}>{brush.size}px</Text>
+          </View>
+        )}
+        <View style={styles.sliderContainer}>
+          <Text style={styles.sliderLabel}>크기</Text>
+          <View style={styles.sliderTrack}>
+            <Animated.View
+              style={[
+                styles.sliderProgress,
+                {
+                  width: pan.x.interpolate({
+                    inputRange: [0, sliderWidth - thumbSize],
+                    outputRange: ['0%', '100%'],
+                    extrapolate: 'clamp',
+                  }),
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.sliderThumb,
+                {
+                  transform: [
+                    {
+                      translateX: pan.x.interpolate({
+                        inputRange: [0, sliderWidth - thumbSize],
+                        outputRange: [0, sliderWidth - thumbSize],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                  ],
+                },
+              ]}
+              {...panResponder.panHandlers}
+            />
+          </View>
+        </View>
+      </View>
       <View style={styles.toolsContainer}>
         {tools.map(tool => {
           const IconComponent = tool.icon;
@@ -40,19 +121,10 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
               style={[styles.toolButton, isSelected && styles.selectedToolButton]}
               onPress={() => handleToolSelect(tool.type)}
             >
-              <IconComponent size={24} color={isSelected ? '#007AFF' : '#666666'} />
-              <Text style={[styles.toolLabel, isSelected && styles.selectedToolLabel]}>
-                {tool.label}
-              </Text>
+              <IconComponent size={24} color='white' />
             </TouchableOpacity>
           );
         })}
-      </View>
-
-      <View style={styles.settingsContainer}>
-        <TouchableOpacity style={styles.settingsButton} onPress={handleBrushSettingsPress}>
-          <Text style={styles.settingsButtonText}>크기: {brush.size}px</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -60,50 +132,83 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f8f9fa',
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    backgroundColor: 'dimgray',
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
   toolsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 12,
+    justifyContent: 'space-between',
   },
   toolButton: {
     alignItems: 'center',
+    width: 100,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    minWidth: 60,
   },
   selectedToolButton: {
-    backgroundColor: '#e3f2fd',
-  },
-  toolLabel: {
-    fontSize: 12,
-    color: '#666666',
-    marginTop: 4,
-  },
-  selectedToolLabel: {
-    color: '#007AFF',
-    fontWeight: '600',
+    borderBottomWidth: 2,
+    borderBottomColor: 'white',
   },
   settingsContainer: {
     alignItems: 'center',
   },
-  settingsButton: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
+  sizeDisplay: {
+    position: 'absolute',
+    top: 0,
+    left: 100,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
   },
-  settingsButtonText: {
+  sizeText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  sliderContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sliderLabel: {
+    color: 'white',
     fontSize: 14,
-    color: '#333333',
+    marginBottom: 8,
     fontWeight: '500',
+  },
+  sliderTrack: {
+    width: 200,
+    height: 4,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 2,
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  sliderProgress: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    height: 4,
+    backgroundColor: 'white',
+    borderRadius: 2,
+  },
+  sliderThumb: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    top: -8,
+    left: -10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { View } from 'react-native';
-import Svg, { Path, Defs, ClipPath, Rect } from 'react-native-svg';
+import Svg, { Path, Defs, ClipPath, Rect, Image, G } from 'react-native-svg';
 import { useColoringStore } from '../stores/coloringStore';
 import { Point } from '../models/coloring';
 
@@ -72,7 +72,7 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
       if (!layer.visible) return null;
 
       return (
-        <g key={layer.id} opacity={layer.opacity}>
+        <G key={layer.id} opacity={layer.opacity}>
           {layer.strokes.map(stroke => {
             const path = strokeToPath(stroke.points);
 
@@ -89,7 +89,7 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
               />
             );
           })}
-        </g>
+        </G>
       );
     });
   }, [layers.items, strokeToPath]);
@@ -112,7 +112,7 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
         </Defs>
 
         {pdfImageUri && (
-          <image
+          <Image
             href={pdfImageUri}
             x={0}
             y={0}
@@ -122,7 +122,7 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
           />
         )}
 
-        <g clipPath='url(#canvasClip)'>{renderLayers()}</g>
+        <G clipPath='url(#canvasClip)'>{renderLayers()}</G>
       </Svg>
     </View>
   );

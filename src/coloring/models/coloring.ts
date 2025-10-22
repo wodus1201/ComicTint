@@ -1,4 +1,3 @@
-// src/coloring/models/coloring.ts
 export interface Point {
   x: number;
   y: number;

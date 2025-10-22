@@ -7,6 +7,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import PdfListScreen from './src/screens/PdfListScreen';
 import PdfViewerScreen from './src/screens/PdfViewerScreen';
 import RecentFilesScreen from './src/screens/RecentFilesScreen';
+import ColoringScreen from './src/screens/ColoringScreen';
 
 enableScreens(true);
 
@@ -27,6 +28,11 @@ function App() {
           <Stack.Screen
             name='RecentFiles'
             component={RecentFilesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='Coloring'
+            component={ColoringScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
