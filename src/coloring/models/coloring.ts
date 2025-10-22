@@ -59,6 +59,7 @@ export interface ColoringProject {
     past: ColoringAction[];
     present: ColoringAction | null;
     future: ColoringAction[];
+    maxHistorySize: number;
   };
 
   metadata: {
