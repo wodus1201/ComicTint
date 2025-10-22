@@ -47,12 +47,12 @@ export default function PdfListBottomBar({
       ) : (
         <View key='normal-mode' style={{ flexDirection: 'row' }}>
           <TouchableOpacity style={styles.button} onPress={onPick}>
-            <Text style={[styles.buttonText, { paddingRight: 20 }]}>PDF 가져오기</Text>
+            <Text style={[styles.buttonText]}>PDF 가져오기</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={onOpenRecent}>
             <Text style={styles.buttonText}>최근 파일</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { paddingRight: 15 }]} onPress={onToggleEdit}>
+          <TouchableOpacity style={[styles.button]} onPress={onToggleEdit}>
             <Text style={styles.buttonText}>목록 수정</Text>
           </TouchableOpacity>
         </View>

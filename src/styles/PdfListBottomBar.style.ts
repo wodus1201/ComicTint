@@ -10,7 +10,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 18,
-    width: 130,
+    paddingHorizontal: 25,
+    width: 'auto',
   },
   buttonText: {
     fontSize: 18,
