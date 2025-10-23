@@ -84,15 +84,12 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
       <View style={styles.header}>
         <Text style={styles.title}>레이어</Text>
         <View style={styles.headerActions}>
-          <Text style={styles.statsText}>
-            {layerStats.visibleLayers}/{layerStats.totalLayers}
-          </Text>
           <TouchableOpacity
             onPress={() => addLayer()}
             style={styles.addButton}
             accessibilityLabel='add-layer'
           >
-            <PlusIcon size={16} color={'dimgray'} />
+            <PlusIcon size={18} color={'dimgray'} />
           </TouchableOpacity>
         </View>
       </View>

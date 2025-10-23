@@ -1,20 +1,19 @@
+import { useState, useRef } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, PanResponder, Animated } from 'react-native';
 import { PenIcon, BrushIcon, EraserIcon, PaintBucketIcon } from 'lucide-react-native';
 import { useColoringStore } from '../stores/coloringStore';
 import { useBrushTool } from '../hooks/useBrushTool';
 import { BrushType } from '../models/coloring';
-import { useState, useRef } from 'react';
 
 interface BrushToolbarProps {
   onBrushSettingsPress?: () => void;
 }
 
 export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress }) => {
-  const { ui, setSelectedTool, toggleBrushSettings } = useColoringStore();
+  const { setSelectedTool } = useColoringStore();
   const { brush, setBrushType, setBrushSize, brushInfo } = useBrushTool();
   const [isSliderActive, setIsSliderActive] = useState(false);
   const sliderWidth = 200;
-  const sliderHeight = 40;
   const thumbSize = 20;
 
   const pan = useRef(new Animated.ValueXY()).current;
@@ -61,11 +60,6 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
   const handleToolSelect = (type: BrushType) => {
     setBrushType(type);
     setSelectedTool(type);
-  };
-
-  const handleBrushSettingsPress = () => {
-    toggleBrushSettings();
-    onBrushSettingsPress?.();
   };
 
   return (
@@ -136,7 +130,7 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'dimgray',
-    paddingVertical: 12,
+    paddingBottom: 12,
     paddingHorizontal: 16,
   },
   toolsContainer: {
@@ -182,7 +176,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   sliderTrack: {
-    width: 200,
+    width: '95%',
     height: 4,
     backgroundColor: 'rgba(255,255,255,0.3)',
     borderRadius: 2,

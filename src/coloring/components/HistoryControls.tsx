@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     borderRadius: 8,
     backgroundColor: 'white',
     marginLeft: 8,
