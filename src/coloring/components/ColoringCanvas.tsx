@@ -1,14 +1,8 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
 import { View } from 'react-native';
 import Svg, { Path, Defs, ClipPath, Rect, Image, G } from 'react-native-svg';
 import { useColoringStore } from '../stores/coloringStore';
-import { Point } from '../models/coloring';
-import {
-  touchToCanvasCoordinates,
-  pointsToSvgPath,
-  getDefaultZoomLimits,
-  getDefaultPanLimits,
-} from '../utils/canvasUtils';
+import { useColoringCanvas } from '../hooks/useColoringCanvas';
 
 interface ColoringCanvasProps {
   width: number;
@@ -17,52 +11,11 @@ interface ColoringCanvasProps {
 }
 
 export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, pdfImageUri }) => {
-  const { canvas, layers, setCanvasSize, startDrawing, continueDrawing, endDrawing } =
-    useColoringStore();
+  const { layers } = useColoringStore();
+  const { canvas, handleTouchStart, handleTouchMove, handleTouchEnd, strokeToPath } =
+    useColoringCanvas({ width, height });
 
   const svgRef = useRef<Svg>(null);
-
-  useEffect(() => {
-    setCanvasSize(width, height);
-  }, [width, height, setCanvasSize]);
-
-  const convertToCanvasCoordinates = useCallback(
-    (x: number, y: number): Point => {
-      return touchToCanvasCoordinates(x, y, {
-        scale: canvas.scale,
-        offset: canvas.offset,
-      });
-    },
-    [canvas.offset, canvas.scale],
-  );
-
-  const handleTouchStart = useCallback(
-    (event: any) => {
-      const { locationX, locationY } = event.nativeEvent;
-      const point = convertToCanvasCoordinates(locationX, locationY);
-      startDrawing(point);
-    },
-    [convertToCanvasCoordinates, startDrawing],
-  );
-
-  const handleTouchMove = useCallback(
-    (event: any) => {
-      if (!canvas.isDrawing) return;
-
-      const { locationX, locationY } = event.nativeEvent;
-      const point = convertToCanvasCoordinates(locationX, locationY);
-      continueDrawing(point);
-    },
-    [canvas.isDrawing, convertToCanvasCoordinates, continueDrawing],
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    endDrawing();
-  }, [endDrawing]);
-
-  const strokeToPath = useCallback((points: Point[]): string => {
-    return pointsToSvgPath(points, true, 0.3);
-  }, []);
 
   const renderLayers = useCallback(() => {
     return layers.items.map(layer => {
