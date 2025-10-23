@@ -1,6 +1,7 @@
 import { View, TouchableOpacity, Text, StyleSheet, PanResponder, Animated } from 'react-native';
 import { PenIcon, BrushIcon, EraserIcon, PaintBucketIcon } from 'lucide-react-native';
 import { useColoringStore } from '../stores/coloringStore';
+import { useBrushTool } from '../hooks/useBrushTool';
 import { BrushType } from '../models/coloring';
 import { useState, useRef } from 'react';
 
@@ -9,8 +10,8 @@ interface BrushToolbarProps {
 }
 
 export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress }) => {
-  const { brush, ui, setBrushType, setSelectedTool, toggleBrushSettings, setBrushSize } =
-    useColoringStore();
+  const { ui, setSelectedTool, toggleBrushSettings } = useColoringStore();
+  const { brush, setBrushType, setBrushSize, brushInfo } = useBrushTool();
   const [isSliderActive, setIsSliderActive] = useState(false);
   const sliderWidth = 200;
   const sliderHeight = 40;
@@ -18,7 +19,7 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
 
   const pan = useRef(new Animated.ValueXY()).current;
 
-  const initialX = ((brush.size - 1) / 49) * (sliderWidth - thumbSize);
+  const initialX = ((brush.size - 1) / 99) * (sliderWidth - thumbSize);
   pan.setValue({ x: initialX, y: 0 });
 
   const panResponder = useRef(
@@ -40,7 +41,7 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
         pan.setValue({ x: newX, y: 0 });
 
         const progress = newX / (sliderWidth - thumbSize);
-        const newSize = Math.round(1 + progress * 49);
+        const newSize = Math.round(1 + progress * 99);
         setBrushSize(newSize);
       },
       onPanResponderRelease: () => {
@@ -72,7 +73,9 @@ export const BrushToolbar: React.FC<BrushToolbarProps> = ({ onBrushSettingsPress
       <View style={styles.settingsContainer}>
         {isSliderActive && (
           <View style={styles.sizeDisplay}>
-            <Text style={styles.sizeText}>{brush.size}px</Text>
+            <Text style={styles.sizeText}>
+              {brushInfo.displayName} {brush.size}px
+            </Text>
           </View>
         )}
         <View style={styles.sliderContainer}>
