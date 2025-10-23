@@ -3,6 +3,12 @@ import { View } from 'react-native';
 import Svg, { Path, Defs, ClipPath, Rect, Image, G } from 'react-native-svg';
 import { useColoringStore } from '../stores/coloringStore';
 import { Point } from '../models/coloring';
+import {
+  touchToCanvasCoordinates,
+  pointsToSvgPath,
+  getDefaultZoomLimits,
+  getDefaultPanLimits,
+} from '../utils/canvasUtils';
 
 interface ColoringCanvasProps {
   width: number;
@@ -22,11 +28,10 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
 
   const convertToCanvasCoordinates = useCallback(
     (x: number, y: number): Point => {
-      return {
-        x: (x - canvas.offset.x) / canvas.scale,
-        y: (y - canvas.offset.y) / canvas.scale,
-        timestamp: Date.now(),
-      };
+      return touchToCanvasCoordinates(x, y, {
+        scale: canvas.scale,
+        offset: canvas.offset,
+      });
     },
     [canvas.offset, canvas.scale],
   );
@@ -56,15 +61,7 @@ export const ColoringCanvas: React.FC<ColoringCanvasProps> = ({ width, height, p
   }, [endDrawing]);
 
   const strokeToPath = useCallback((points: Point[]): string => {
-    if (points.length === 0) return '';
-
-    let path = `M ${points[0].x} ${points[0].y}`;
-
-    for (let i = 1; i < points.length; i++) {
-      path += ` L ${points[i].x} ${points[i].y}`;
-    }
-
-    return path;
+    return pointsToSvgPath(points, true, 0.3);
   }, []);
 
   const renderLayers = useCallback(() => {
