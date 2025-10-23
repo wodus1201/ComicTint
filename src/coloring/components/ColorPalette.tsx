@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
 import { useColoringStore } from '../stores/coloringStore';
+import { getDefaultColorPalettes, getContrastingColor } from '../utils/colorUtils';
 
 interface ColorPaletteProps {
   onColorSelect?: (color: string) => void;
@@ -9,31 +10,11 @@ interface ColorPaletteProps {
 export const ColorPalette: React.FC<ColorPaletteProps> = ({ onColorSelect }) => {
   const { brush, setBrushColor } = useColoringStore();
   const [customColors, setCustomColors] = useState<string[]>([]);
+  const [selectedPalette, setSelectedPalette] = useState<string>('기본 색상');
 
-  const defaultColors = [
-    '#000000',
-    '#FFFFFF',
-    '#FF0000',
-    '#00FF00',
-    '#0000FF',
-    '#FFFF00',
-    '#FF00FF',
-    '#00FFFF',
-    '#FFA500',
-    '#800080',
-    '#FFC0CB',
-    '#A52A2A',
-    '#808080',
-    '#000080',
-    '#008000',
-    '#FFD700',
-    '#FF6347',
-    '#40E0D0',
-    '#EE82EE',
-    '#90EE90',
-  ];
-
-  const allColors = [...defaultColors, ...customColors];
+  const defaultPalettes = getDefaultColorPalettes();
+  const currentPalette = defaultPalettes.find(p => p.name === selectedPalette);
+  const allColors = currentPalette ? [...currentPalette.colors, ...customColors] : [];
 
   const handleColorSelect = (color: string) => {
     setBrushColor(color);
@@ -46,11 +27,38 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ onColorSelect }) => 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.paletteSelector}
+        contentContainerStyle={styles.paletteSelectorContent}
+      >
+        {defaultPalettes.map(palette => (
+          <TouchableOpacity
+            key={palette.name}
+            style={[
+              styles.paletteButton,
+              selectedPalette === palette.name && styles.selectedPaletteButton,
+            ]}
+            onPress={() => setSelectedPalette(palette.name)}
+          >
+            <Text
+              style={[
+                styles.paletteButtonText,
+                selectedPalette === palette.name && styles.selectedPaletteButtonText,
+              ]}
+            >
+              {palette.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
         <View style={styles.colorGrid}>
           {allColors.map((color, index) => {
             const isSelected = brush.color === color;
+            const contrastingColor = getContrastingColor(color);
             return (
               <TouchableOpacity
                 key={`${color}-${index}`}
@@ -63,7 +71,7 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ onColorSelect }) => 
               >
                 {isSelected && (
                   <View style={styles.selectedIndicator}>
-                    <Text style={styles.checkmark}>✓</Text>
+                    <Text style={[styles.checkmark, { color: contrastingColor }]}>✓</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -95,6 +103,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333333',
     marginBottom: 12,
+  },
+  paletteSelector: {
+    marginBottom: 12,
+  },
+  paletteSelectorContent: {
+    paddingHorizontal: 4,
+  },
+  paletteButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    borderRadius: 16,
+    backgroundColor: '#e9ecef',
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+  },
+  selectedPaletteButton: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  paletteButtonText: {
+    fontSize: 12,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  selectedPaletteButtonText: {
+    color: '#ffffff',
   },
   scrollContainer: {
     paddingHorizontal: 4,
