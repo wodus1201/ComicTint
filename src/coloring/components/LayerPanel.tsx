@@ -8,15 +8,25 @@ import {
   ChevronDownIcon,
   LayersIcon,
 } from 'lucide-react-native';
-import { useColoringStore } from '../stores/coloringStore';
+import { useLayerManagement } from '../hooks/useLayerManagement';
 
 interface LayerPanelProps {
   compact?: boolean;
 }
 
 export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
-  const { layers, addLayer, deleteLayer, selectLayer, toggleLayerVisibility, reorderLayers } =
-    useColoringStore();
+  const {
+    layers,
+    addLayer,
+    deleteLayer,
+    selectLayer,
+    toggleLayerVisibility,
+    moveLayerUp,
+    moveLayerDown,
+    canMoveUp,
+    canMoveDown,
+    layerStats,
+  } = useLayerManagement();
 
   const renderItem = ({ item, index }: any) => {
     const isActive = layers.activeLayerId === item.id;
@@ -46,17 +56,17 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => reorderLayers(index, Math.max(0, index - 1))}
+            onPress={() => moveLayerUp(item.id)}
             style={styles.iconButton}
-            disabled={index === 0}
+            disabled={!canMoveUp(item.id)}
           >
             <ChevronUpIcon size={18} color={isActive ? 'dimgray' : 'white'} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => reorderLayers(index, Math.min(layers.items.length - 1, index + 1))}
+            onPress={() => moveLayerDown(item.id)}
             style={styles.iconButton}
-            disabled={index === layers.items.length - 1}
+            disabled={!canMoveDown(item.id)}
           >
             <ChevronDownIcon size={18} color={isActive ? 'dimgray' : 'white'} />
           </TouchableOpacity>
@@ -73,13 +83,18 @@ export const LayerPanel: React.FC<LayerPanelProps> = ({ compact = false }) => {
     <View style={[styles.container, compact && styles.compact]}>
       <View style={styles.header}>
         <Text style={styles.title}>레이어</Text>
-        <TouchableOpacity
-          onPress={() => addLayer()}
-          style={styles.addButton}
-          accessibilityLabel='add-layer'
-        >
-          <PlusIcon size={16} color={'dimgray'} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <Text style={styles.statsText}>
+            {layerStats.visibleLayers}/{layerStats.totalLayers}
+          </Text>
+          <TouchableOpacity
+            onPress={() => addLayer()}
+            style={styles.addButton}
+            accessibilityLabel='add-layer'
+          >
+            <PlusIcon size={16} color={'dimgray'} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -106,6 +121,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 6,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statsText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '500',
   },
   title: {
     fontSize: 16,

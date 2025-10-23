@@ -358,9 +358,6 @@ export const useColoringStore = create<ColoringState & ColoringActions>()(
       }),
 
     saveProject: async () => {
-      const state = get();
-      console.log('프로젝트 저장:', state.project.id);
-
       set(state => {
         state.project.isDirty = false;
         state.project.lastModified = Date.now();

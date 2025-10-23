@@ -10,34 +10,27 @@ interface BrushPreset {
 }
 
 interface UseBrushToolReturn {
-  // 현재 브러시 설정
   brush: BrushSettings;
 
-  // 브러시 설정 변경 함수들
   setBrushType: (type: BrushType) => void;
   setBrushSize: (size: number) => void;
   setBrushOpacity: (opacity: number) => void;
   setBrushColor: (color: string) => void;
   setBrushHardness: (hardness: number) => void;
 
-  // 브러시 설정 검증 및 제한
   validateBrushSize: (size: number) => number;
   validateBrushOpacity: (opacity: number) => number;
   validateBrushHardness: (hardness: number) => number;
 
-  // 브러시 프리셋 관리
   presets: BrushPreset[];
   applyPreset: (presetId: string) => void;
   createPreset: (name: string, settings: BrushSettings) => void;
 
-  // 브러시 설정 초기화
   resetToDefault: () => void;
 
-  // 브러시 설정 복사/붙여넣기
   copyBrushSettings: () => BrushSettings;
   pasteBrushSettings: (settings: BrushSettings) => void;
 
-  // 브러시 정보
   brushInfo: {
     isEraser: boolean;
     isBucket: boolean;
@@ -107,7 +100,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
   const { brush, setBrushType, setBrushSize, setBrushOpacity, setBrushColor, setBrushHardness } =
     useColoringStore();
 
-  // 브러시 설정 검증 함수들
   const validateBrushSize = useCallback((size: number): number => {
     return Math.max(BRUSH_LIMITS.size.min, Math.min(BRUSH_LIMITS.size.max, size));
   }, []);
@@ -120,7 +112,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
     return Math.max(BRUSH_LIMITS.hardness.min, Math.min(BRUSH_LIMITS.hardness.max, hardness));
   }, []);
 
-  // 검증된 브러시 설정 변경 함수들
   const setValidatedBrushSize = useCallback(
     (size: number) => {
       const validatedSize = validateBrushSize(size);
@@ -145,7 +136,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
     [validateBrushHardness, setBrushHardness],
   );
 
-  // 브러시 프리셋 적용
   const applyPreset = useCallback(
     (presetId: string) => {
       const preset = DEFAULT_BRUSH_PRESETS.find(p => p.id === presetId);
@@ -166,7 +156,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
     ],
   );
 
-  // 커스텀 프리셋 생성 (로컬 스토리지에 저장)
   const createPreset = useCallback((name: string, settings: BrushSettings) => {
     const newPreset: BrushPreset = {
       id: `custom_${Date.now()}`,
@@ -175,11 +164,9 @@ export const useBrushTool = (): UseBrushToolReturn => {
       category: 'basic',
     };
 
-    // 로컬 스토리지에 저장 (추후 구현)
-    console.log('새 프리셋 생성:', newPreset);
+    // TODO: 로컬 스토리지에 저장 구현 (현재는 메모리에만 저장 중)
   }, []);
 
-  // 브러시 설정 초기화
   const resetToDefault = useCallback(() => {
     const defaultPreset = DEFAULT_BRUSH_PRESETS.find(p => p.id === 'pen_medium');
     if (defaultPreset) {
@@ -187,7 +174,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
     }
   }, [applyPreset]);
 
-  // 브러시 설정 복사/붙여넣기
   const copyBrushSettings = useCallback((): BrushSettings => {
     return { ...brush };
   }, [brush]);
@@ -209,7 +195,6 @@ export const useBrushTool = (): UseBrushToolReturn => {
     ],
   );
 
-  // 브러시 정보 계산
   const brushInfo = useMemo(() => {
     const isEraser = brush.type === 'eraser';
     const isBucket = brush.type === 'bucket';
