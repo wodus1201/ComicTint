@@ -2,7 +2,7 @@ import { FlatList, StatusBar, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList, PdfParams } from '../navigation/types';
 import { usePdfImport } from '../hooks/usePdfImport';
 import { usePdfSelection } from '../hooks/usePdfSelection';
 import { useMenuPosition } from '../hooks/useMenuPosition';
@@ -203,7 +203,11 @@ export default function PdfListScreen({ navigation }: Props) {
               isFavorite={isFavorite(item.id)}
               onPressItem={it => {
                 if (!editMode && it.uri) {
-                  navigation.navigate('PdfViewer', { uri: it.uri, id: it.id, name: it.name });
+                  navigation.navigate('PdfViewer', {
+                    uri: it.uri,
+                    id: it.id,
+                    name: it.name,
+                  } as PdfParams);
                 }
                 if (editMode) {
                   toggleSelect(it.id);

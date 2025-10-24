@@ -11,7 +11,7 @@ import {
 import { styles } from '../styles/PdfViewerScreen.style';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ArrowLeftIcon, PaletteIcon, ShareIcon } from 'lucide-react-native';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList, PdfParams, ColoringParams } from '../navigation/types';
 import { updatePdfIndex } from '../storage/pdfIndex';
 import { stripExtension } from '../utils/files';
 import Pdf from 'react-native-pdf';
@@ -136,7 +136,7 @@ export default function PdfViewerScreen({ route, navigation }: Props) {
                 pdfUri: uri,
                 pdfId: id,
                 pageNumber: 1,
-              });
+              } as ColoringParams);
             }
           }}
           hitSlop={8}

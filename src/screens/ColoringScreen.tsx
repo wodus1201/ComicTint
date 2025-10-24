@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList, ColoringParams } from '../navigation/types';
 import { useColoringStore } from '../coloring/stores/coloringStore';
 import { useColoringCanvas } from '../coloring/hooks/useColoringCanvas';
 import { useBrushTool } from '../coloring/hooks/useBrushTool';
